@@ -9,6 +9,9 @@ Everything is one file, `index.html`, with no build step and no dependencies bey
 - **Main list (#1–#15)** — current frontier, full points.
 - **Extended list (#16–#30)** — one generation back or smaller tiers, reduced points.
 - **Legacy list (#31+)** — history, zero points, never removed.
+- **Watchlist** — announced models with no benchmark result yet. Unranked.
+
+Placement is by measured capability only. Restricted and internal models are ranked on their published numbers and carry a status badge; availability never moves a model.
 
 Points: `250 · 0.888^(p−1)` for the main list, `50 · (31−p)/16` for extended, zero for legacy. A lab's score is the sum of its models' points.
 
@@ -17,12 +20,13 @@ Points: `250 · 0.888^(p−1)` for the main list, `50 · (31−p)/16` for extend
 All data lives in the `MODELS` array near the top of the `<script>` block. Order in the array is rank. Each entry has:
 
 ```
-id, name, lab, date (YYYY-MM-DD), weights ("open"|"closed"), price, ctx, mark,
-blurb, records: [[benchmark, score, "indep"|"vendor"|"community", source, bar 0-100 or null]],
+id, name, lab, date (YYYY-MM-DD), status ("ga"|"restricted"|"internal"|"preview"),
+weights ("open"|"closed"), price, ctx, mark, blurb,
+records: [[benchmark, score, "indep"|"vendor"|"community", source, bar 0-100 or null, isListRecord?]],
 history: [[date, note]]
 ```
 
-Labs are in `LABS`. The change log on the Guidelines tab is `CHANGELOG`.
+Labs are in `LABS`. Announced-but-unbenchmarked models go in `WATCH`. The change log on the Guidelines tab is `CHANGELOG`.
 
 ## Records and submissions
 
