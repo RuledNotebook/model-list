@@ -11,7 +11,7 @@ Everything is one file, `index.html`, with no build step and no dependencies bey
 - **Legacy list (#31+)** — history, zero points, never removed.
 - **Watchlist** — announced models with no benchmark result yet. Unranked.
 
-Placement is by measured capability only. Restricted and internal models are ranked on their published numbers and carry a status badge; availability never moves a model.
+Placement is by measured capability only. Restricted and internal models are ranked on their lab's published numbers, or on the lab's written comparison to a listed model when that is all that exists, and carry a status badge; availability never moves a model.
 
 Points: `250 · 0.888^(p−1)` for the main list, `50 · (31−p)/16` for extended, zero for legacy. A lab's score is the sum of its models' points.
 
