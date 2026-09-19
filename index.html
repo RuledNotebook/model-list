@@ -3,9 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="A ranked frontier list for AI models, released or not: main, extended, legacy and watchlist tiers, list points, benchmark records and a lab leaderboard.">
+<meta name="description" content="A ranked frontier list for AI models, released or not: main, extended, legacy and watchlist tiers, list points, benchmark scores and a lab leaderboard.">
+<meta property="og:title" content="The Model List">
+<meta property="og:description" content="Which AI model is strongest right now, ranked by benchmark. Main list, extended list, legacy list, watchlist.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://rulednotebook.github.io/model-list/">
+<meta name="theme-color" content="#0e1117">
 <title>The Model List</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230e1117'/%3E%3Cpath d='M14 46V18h7l7 16 7-16h7v28h-6V29l-6 13h-4l-6-13v17z' fill='%23f2b134'/%3E%3C/svg%3E">
 </head>
 <body>
 <style>
@@ -57,7 +63,7 @@ button{font:inherit;color:inherit}
 .brand .word b{color:var(--accent);font-weight:400}
 .brand .ver{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--faint);letter-spacing:.08em}
 .tabs{display:flex;gap:2px;height:100%}
-.tab{background:none;border:0;border-bottom:2px solid transparent;padding:0 14px;color:var(--muted);cursor:pointer;font-weight:500;height:100%;letter-spacing:.01em;white-space:nowrap}
+.tab{background:none;border:0;border-bottom:2px solid transparent;padding:0 14px;color:var(--muted);cursor:pointer;font-weight:500;height:100%;letter-spacing:.01em;white-space:nowrap;transition:color .12s}
 .tab:hover{color:var(--text)}
 .tab.on{color:var(--text);border-bottom-color:var(--accent)}
 .nav .spacer{flex:1}
@@ -81,10 +87,13 @@ button{font:inherit;color:inherit}
 .search input{flex:1;background:none;border:0;color:var(--text);font:inherit;outline:none;min-width:0}
 .search input::placeholder{color:var(--faint)}
 .search svg{width:15px;height:15px;color:var(--faint);flex:none}
-.chips{display:flex;gap:6px;flex-wrap:wrap}
-.chip{border:1px solid var(--line);background:none;border-radius:999px;padding:3px 10px;font-size:12px;color:var(--muted);cursor:pointer}
+.search kbd{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--faint);border:1px solid var(--line);border-radius:4px;padding:1px 5px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.chip{border:1px solid var(--line);background:none;border-radius:999px;padding:3px 10px;font-size:12px;color:var(--muted);cursor:pointer;transition:border-color .12s,color .12s}
 .chip:hover{border-color:var(--line-strong);color:var(--text)}
 .chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--text)}
+.chips .hint{margin-left:auto;font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--faint);letter-spacing:.04em}
+@media (max-width:1100px){.chips .hint{display:none}}
 .rail-body{flex:1;min-height:0;overflow-y:auto;scroll-behavior:smooth}
 @media (max-width:860px){.rail-body{max-height:56vh}}
 .sect{position:sticky;top:0;z-index:2;background:var(--panel-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 14px;font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between}
@@ -93,11 +102,17 @@ button{font:inherit;color:inherit}
 .sect.ext{border-left:3px solid var(--ext)}
 .sect.legacy{border-left:3px solid var(--legacy)}
 .sect.watch{border-left:3px solid var(--danger)}
-.row{display:grid;grid-template-columns:56px 84px 1fr auto;gap:12px;align-items:center;padding:10px 14px 10px 10px;border:0;border-bottom:1px solid var(--line);background:none;width:100%;text-align:left;cursor:pointer;color:inherit}
+.row{display:grid;grid-template-columns:56px 84px 1fr auto;gap:12px;align-items:center;padding:9px 14px 9px 10px;border:0;border-bottom:1px solid var(--line);background:none;width:100%;text-align:left;cursor:pointer;color:inherit;transition:background .1s}
 .row:hover{background:var(--panel-2)}
 .row.sel{background:var(--accent-soft);box-shadow:inset 3px 0 0 var(--accent)}
-.rank{font-family:"Bebas Neue",Impact,sans-serif;font-size:30px;line-height:1;text-align:center;color:var(--muted);font-variant-numeric:tabular-nums}
+.rankcell{display:flex;flex-direction:column;align-items:center;gap:1px}
+.rank{font-family:"Bebas Neue",Impact,sans-serif;font-size:28px;line-height:1;text-align:center;color:var(--muted);font-variant-numeric:tabular-nums}
 .row.sel .rank,.row:hover .rank{color:var(--text)}
+.mv{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.04em;line-height:1;padding:2px 5px;border-radius:4px;white-space:nowrap}
+.mv.up{color:var(--ok);background:color-mix(in srgb,var(--ok) 14%,transparent)}
+.mv.down{color:var(--danger);background:color-mix(in srgb,var(--danger) 12%,transparent)}
+.mv.same{color:var(--faint)}
+.mv.new{color:var(--accent);background:var(--accent-soft)}
 .tile{width:84px;height:50px;border-radius:5px;position:relative;overflow:hidden;background:#141922;border:1px solid var(--line);flex:none}
 .tile canvas{position:absolute;inset:0;width:100%;height:100%}
 .tile .mark{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:"Bebas Neue",Impact,sans-serif;font-size:22px;letter-spacing:.06em;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.6)}
@@ -116,6 +131,7 @@ button{font:inherit;color:inherit}
 .hero{position:relative;padding:22px 28px 20px;border-bottom:1px solid var(--line)}
 .hero .kicker{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);display:flex;gap:12px;align-items:center;flex-wrap:wrap}
 .hero .kicker .pos{color:var(--accent)}
+.hero .kicker .tools{margin-left:auto;display:flex;gap:6px}
 .hero h1{font-family:"Bebas Neue",Impact,sans-serif;font-weight:400;font-size:clamp(40px,5vw,72px);letter-spacing:.02em;line-height:.95;margin:8px 0 6px;text-wrap:balance}
 .hero .sub{color:var(--muted);font-size:15px}
 .hero .sub b{color:var(--text);font-weight:600}
@@ -127,12 +143,14 @@ button{font:inherit;color:inherit}
 .badge.tier-ext{background:color-mix(in srgb,var(--ext) 14%,transparent);color:var(--ext);border-color:color-mix(in srgb,var(--ext) 45%,transparent)}
 .badge.tier-legacy{background:var(--closed-soft);color:var(--muted);border-color:var(--line-strong)}
 .badge.tier-watch{background:color-mix(in srgb,var(--danger) 12%,transparent);color:var(--danger);border-color:color-mix(in srgb,var(--danger) 45%,transparent)}
-.badge.hot{background:var(--danger);color:#fff}
+.badge.hot{background:var(--accent);color:var(--accent-ink)}
 .badge.st-ga{background:color-mix(in srgb,var(--ok) 14%,transparent);color:var(--ok);border-color:color-mix(in srgb,var(--ok) 45%,transparent)}
 .badge.st-restricted{background:var(--accent-soft);color:var(--accent);border-color:color-mix(in srgb,var(--accent) 45%,transparent)}
 .badge.st-internal{background:color-mix(in srgb,var(--danger) 12%,transparent);color:var(--danger);border-color:color-mix(in srgb,var(--danger) 45%,transparent)}
 .badge.st-preview{background:color-mix(in srgb,var(--ext) 14%,transparent);color:var(--ext);border-color:color-mix(in srgb,var(--ext) 45%,transparent)}
 .badge.st-announced{background:var(--closed-soft);color:var(--muted);border-color:var(--line-strong)}
+.iconbtn{border:1px solid var(--line);background:var(--panel-2);border-radius:6px;padding:4px 9px;cursor:pointer;font-size:11px;color:var(--muted);letter-spacing:.04em;text-transform:none;font-family:"IBM Plex Sans",system-ui,sans-serif}
+.iconbtn:hover{color:var(--text);border-color:var(--line-strong)}
 
 .stats{display:grid;grid-template-columns:repeat(5,1fr);border-bottom:1px solid var(--line)}
 @media (max-width:900px){.stats{grid-template-columns:repeat(3,1fr)}.stat:nth-child(3){border-right:0}.stat:nth-child(-n+3){border-bottom:1px solid var(--line)}}
@@ -142,11 +160,14 @@ button{font:inherit;color:inherit}
 .stat .lbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-family:"IBM Plex Mono",monospace;white-space:nowrap}
 .stat .val{font-size:22px;font-weight:600;margin-top:2px;font-variant-numeric:tabular-nums;line-height:1.15;overflow-wrap:anywhere}
 .stat .val small{font-size:13px;color:var(--muted);font-weight:400}
+.stat .val.dim{color:var(--faint);font-weight:400}
 .stat.pts .val{color:var(--accent)}
+.stat .val.up{color:var(--ok)}
+.stat .val.down{color:var(--danger)}
 
 .body{padding:22px 28px;display:grid;gap:24px;grid-template-columns:minmax(0,1fr) minmax(260px,320px)}
 @media (max-width:1100px){.body{grid-template-columns:1fr}}
-.body .colA{display:grid;gap:22px;min-width:0}
+.body .colA{display:grid;gap:22px;min-width:0;align-content:start}
 .body .colB{display:grid;gap:22px;min-width:0;align-content:start}
 .blurb{max-width:70ch;margin:0;color:var(--text);font-size:15.5px}
 .h{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 8px;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
@@ -156,17 +177,18 @@ button{font:inherit;color:inherit}
 .specs dt{color:var(--muted);margin:0}
 .specs dd{margin:0;font-family:"IBM Plex Mono",monospace;font-size:13px;text-align:right;font-variant-numeric:tabular-nums}
 .table{width:100%;border-collapse:collapse;font-size:14px}
-.table th{text-align:left;font-weight:500;color:var(--muted);font-size:12px;letter-spacing:.06em;text-transform:uppercase;padding:6px 10px;border-bottom:1px solid var(--line-strong)}
+.table th{text-align:left;font-weight:500;color:var(--muted);font-size:12px;letter-spacing:.06em;text-transform:uppercase;padding:6px 10px;border-bottom:1px solid var(--line-strong);white-space:nowrap}
 .table td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
 .table tr:last-child td{border-bottom:0}
 .table td.score{font-family:"IBM Plex Mono",monospace;font-weight:500;font-variant-numeric:tabular-nums;white-space:nowrap;min-width:110px}
 .table td.src{color:var(--muted);font-size:13px}
+.table td.standing{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--muted);white-space:nowrap}
+.table td.standing.best{color:var(--accent)}
 .table .bar{height:4px;background:var(--line);border-radius:2px;margin-top:6px;overflow:hidden}
 .table .bar i{display:block;height:100%;background:var(--accent);border-radius:2px}
 .tag{display:inline-block;font-size:11px;padding:1px 7px;border-radius:4px;background:var(--panel-2);border:1px solid var(--line);color:var(--muted);margin-left:6px;vertical-align:middle;font-family:"IBM Plex Mono",monospace;white-space:nowrap}
 .tag.vendor{color:var(--danger);border-color:color-mix(in srgb,var(--danger) 40%,transparent)}
 .tag.indep{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 40%,transparent)}
-.tag.rec{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 50%,transparent)}
 .scroll{overflow-x:auto}
 .movelist{display:grid;gap:8px}
 .move{border:1px solid var(--line);border-radius:8px;padding:8px 12px;background:var(--panel-2);display:flex;flex-direction:column;gap:2px}
@@ -184,11 +206,11 @@ button{font:inherit;color:inherit}
 .lb{display:grid;grid-template-columns:minmax(360px,38%) 1fr;gap:16px;align-items:stretch}
 @media (max-width:860px){.lb{grid-template-columns:1fr}}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;min-height:0}
-.card .ch{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex:none}
+.card .ch{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px;flex:none;flex-wrap:wrap}
 .card .ch h2{margin:0;font-family:"Bebas Neue",Impact,sans-serif;font-weight:400;font-size:26px;letter-spacing:.03em}
 .card .ch .n{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--muted);text-align:right}
 .card .cb{flex:1;min-height:0;overflow-y:auto}
-.lrow{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;padding:11px 16px 11px 12px;border-bottom:1px solid var(--line);background:none;border-left:0;border-right:0;border-top:0;width:100%;text-align:left;cursor:pointer;color:inherit}
+.lrow{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;padding:11px 16px 11px 12px;border-bottom:1px solid var(--line);background:none;border-left:0;border-right:0;border-top:0;width:100%;text-align:left;cursor:pointer;color:inherit;transition:background .1s}
 .lrow:hover{background:var(--panel-2)}
 .lrow.sel{background:var(--accent-soft);box-shadow:inset 3px 0 0 var(--accent)}
 .lrow .rk{font-family:"Bebas Neue",Impact,sans-serif;font-size:26px;color:var(--muted);text-align:center;font-variant-numeric:tabular-nums}
@@ -203,7 +225,7 @@ button{font:inherit;color:inherit}
 @media (max-width:640px){.labstats{grid-template-columns:repeat(2,1fr)}}
 .labstats .stat{padding:12px 16px}
 .labstats .stat .val{font-size:20px}
-.bars{padding:16px 24px;display:grid;gap:10px;overflow-y:auto}
+.bars{padding:16px 24px;display:grid;gap:10px;overflow-y:auto;align-content:start}
 .brow{display:grid;grid-template-columns:44px 1fr 62px;gap:10px;align-items:center;font-size:13px}
 .brow .rk{font-family:"IBM Plex Mono",monospace;color:var(--faint);font-size:12px}
 .brow .track{height:10px;background:var(--panel-2);border:1px solid var(--line);border-radius:3px;overflow:hidden;position:relative}
@@ -216,33 +238,39 @@ button{font:inherit;color:inherit}
 .labdetail button.link{background:none;border:0;padding:0;color:var(--text);cursor:pointer;text-decoration:underline;text-decoration-color:var(--line-strong);text-underline-offset:3px;font-weight:500}
 .labdetail button.link:hover{text-decoration-color:var(--accent)}
 
-/* ---------- submit ---------- */
-.two{display:grid;grid-template-columns:minmax(360px,44%) 1fr;gap:16px;align-items:stretch}
-@media (max-width:860px){.two{grid-template-columns:1fr}}
-.form{padding:18px 20px;display:grid;gap:14px;overflow-y:auto}
-.field{display:grid;gap:5px}
-.field label{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-family:"IBM Plex Mono",monospace}
-.field input,.field select,.field textarea{background:var(--panel-2);border:1px solid var(--line);border-radius:6px;padding:9px 11px;color:var(--text);font:inherit;width:100%}
-.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);outline:none}
-.field textarea{min-height:80px;resize:vertical}
-.field .hint{font-size:12px;color:var(--faint)}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-@media (max-width:520px){.grid2{grid-template-columns:1fr}}
-.btn{background:var(--accent);color:var(--accent-ink);border:0;border-radius:6px;padding:10px 16px;font-weight:600;cursor:pointer}
-.btn:hover{filter:brightness(1.06)}
-.btn:disabled{opacity:.5;cursor:default}
-.notice{padding:12px 14px;border-radius:8px;font-size:13px;border:1px solid var(--line);background:var(--panel-2);color:var(--muted)}
-.notice.ok{border-color:color-mix(in srgb,var(--ok) 50%,transparent);color:var(--ok)}
-.queue{display:grid;align-content:start}
-.qrow{padding:12px 16px;border-bottom:1px solid var(--line);display:grid;grid-template-columns:1fr auto;gap:8px 14px}
-.qrow:last-child{border-bottom:0}
-.qrow .t{font-weight:600}
-.qrow .m{font-size:12px;color:var(--muted)}
-.qrow .s{font-family:"IBM Plex Mono",monospace;font-weight:500;text-align:right;font-variant-numeric:tabular-nums}
-.qrow .st{font-size:11px;font-family:"IBM Plex Mono",monospace;letter-spacing:.08em;text-transform:uppercase;text-align:right}
-.qrow .st.pending{color:var(--accent)}
-.qrow .note{grid-column:1/-1;font-size:13px;color:var(--muted);border-top:1px dashed var(--line);padding-top:6px}
-.qrow a{color:var(--muted);font-size:12px}
+/* ---------- benchmarks matrix ---------- */
+.bx{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,320px);gap:16px;align-items:stretch}
+@media (max-width:1000px){.bx{grid-template-columns:1fr}}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{background:none;border:0;padding:5px 10px;font-size:12px;color:var(--muted);cursor:pointer}
+.seg button.on{background:var(--accent-soft);color:var(--text)}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--muted);align-items:center;flex-wrap:wrap}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;vertical-align:middle;margin-left:5px}
+.dot.indep{background:var(--ok)}
+.dot.vendor{background:var(--danger)}
+.dot.community{background:var(--ext)}
+.legend .dot{margin:0 4px 0 0}
+.mx{overflow:auto;flex:1;min-height:0}
+.mx table{border-collapse:separate;border-spacing:0;font-size:13px;min-width:100%}
+.mx th,.mx td{padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums}
+.mx thead th{position:sticky;top:0;z-index:3;background:var(--panel-2);font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500;border-bottom:1px solid var(--line-strong);cursor:default}
+.mx th:first-child,.mx td:first-child{position:sticky;left:0;z-index:2;background:var(--panel);text-align:left;border-right:1px solid var(--line-strong);min-width:200px}
+.mx thead th:first-child{z-index:4;background:var(--panel-2)}
+.mx td.c{font-family:"IBM Plex Mono",monospace;color:var(--text)}
+.mx td.c.best{color:var(--accent);font-weight:500;background:color-mix(in srgb,var(--accent) 7%,transparent)}
+.mx td.none{color:var(--line-strong)}
+.mx td .rk{font-family:"IBM Plex Mono",monospace;color:var(--faint);font-size:11px;margin-right:8px;display:inline-block;width:28px}
+.mx td button.link{background:none;border:0;padding:0;color:var(--text);cursor:pointer;font-weight:600;font-family:inherit;font-size:13px}
+.mx td button.link:hover{color:var(--accent)}
+.mx td .stt{font-size:10px;color:var(--accent);font-family:"IBM Plex Mono",monospace;margin-left:6px}
+.mx tbody tr:hover td{background:var(--panel-2)}
+.mx tbody tr:hover td.c.best{background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.gloss{list-style:none;margin:0;padding:0}
+.gloss li{padding:10px 16px;border-bottom:1px solid var(--line);font-size:13px}
+.gloss li:last-child{border-bottom:0}
+.gloss b{display:block;font-weight:600;font-size:13px}
+.gloss span{color:var(--muted)}
+.gloss .n{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--faint);margin-top:3px}
 
 /* ---------- guidelines ---------- */
 .rules{display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,38%);gap:16px;align-items:start}
@@ -256,7 +284,6 @@ button{font:inherit;color:inherit}
 .doc li{margin:4px 0}
 .doc code{font-family:"IBM Plex Mono",monospace;font-size:13px;background:var(--panel-2);border:1px solid var(--line);border-radius:4px;padding:1px 5px}
 .side{display:grid;gap:16px;position:sticky;top:calc(var(--nav-h) + 16px)}
-.side .card{padding:0}
 .side .cb{padding:14px 16px}
 .formula{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:12px 16px;font-family:"IBM Plex Mono",monospace;font-size:13px;overflow-x:auto;line-height:1.7}
 .ptable{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
@@ -271,19 +298,23 @@ button{font:inherit;color:inherit}
 .log li{font-size:13px;display:grid;grid-template-columns:auto 1fr;gap:10px}
 .log li code{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--faint);white-space:nowrap}
 .foot{margin-top:16px;color:var(--faint);font-size:12px;text-align:center;line-height:1.7;grid-column:1/-1}
+
+/* ---------- toast ---------- */
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(10px);background:var(--text);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .15s,transform .15s;z-index:50}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 </style>
 
 <nav class="nav">
-  <a class="brand" href="#" id="brandLink"><span class="word">THE MODEL <b>LIST</b></span><span class="ver">ISSUE 2026.09</span></a>
+  <a class="brand" href="#list" id="brandLink"><span class="word">THE MODEL <b>LIST</b></span><span class="ver">ISSUE 2026.09</span></a>
   <div class="tabs" role="tablist">
     <button class="tab on" data-page="list" role="tab">List</button>
     <button class="tab" data-page="board" role="tab">Lab leaderboard</button>
-    <button class="tab" data-page="submit" role="tab">Submit a record</button>
+    <button class="tab" data-page="bench" role="tab">Benchmarks</button>
     <button class="tab" data-page="rules" role="tab">Guidelines</button>
   </div>
   <div class="spacer"></div>
-  <span class="stamp" id="stamp">updated 5 Sep 2026</span>
+  <span class="stamp" id="stamp">data as of 5 Sep 2026</span>
   <button class="theme-btn" id="themeBtn" title="Toggle light / dark">Theme</button>
 </nav>
 
@@ -295,6 +326,7 @@ button{font:inherit;color:inherit}
         <div class="search">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
           <input id="q" type="search" placeholder="Search models or labs" aria-label="Search models or labs">
+          <kbd>/</kbd>
         </div>
         <div class="chips" id="chips">
           <button class="chip on" data-f="all">All</button>
@@ -302,6 +334,7 @@ button{font:inherit;color:inherit}
           <button class="chip" data-f="open">Open weights</button>
           <button class="chip" data-f="closed">Closed</button>
           <button class="chip" data-f="main">Main list</button>
+          <span class="hint">↑ ↓ to move</span>
         </div>
       </div>
       <div class="rail-body" id="railBody"></div>
@@ -321,61 +354,22 @@ button{font:inherit;color:inherit}
   </div>
 </section>
 
-<!-- ================= SUBMIT ================= -->
-<section class="page" id="page-submit">
-  <div class="wrap two fill">
+<!-- ================= BENCHMARKS ================= -->
+<section class="page" id="page-bench">
+  <div class="wrap bx fill">
     <div class="card">
-      <div class="ch"><h2>Submit a record</h2><span class="n">reviewed before listing</span></div>
-      <form class="form" id="recForm">
-        <div class="notice" id="dbNotice">Connecting to the shared record queue…</div>
-        <div class="field">
-          <label for="fModel">Model</label>
-          <select id="fModel" required></select>
+      <div class="ch">
+        <h2>Benchmark cross-reference</h2>
+        <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+          <div class="legend"><span><i class="dot indep"></i>independent</span><span><i class="dot vendor"></i>vendor</span><span style="color:var(--accent)">highlighted = best on the list</span></div>
+          <div class="seg" id="mxSeg"><button class="on" data-scope="main">Main list</button><button data-scope="all">All ranked</button></div>
         </div>
-        <div class="grid2">
-          <div class="field">
-            <label for="fBench">Benchmark</label>
-            <input id="fBench" list="benchList" required placeholder="SWE-bench Pro" maxlength="60">
-            <datalist id="benchList"></datalist>
-          </div>
-          <div class="field">
-            <label for="fScore">Score</label>
-            <input id="fScore" required placeholder="81.2%" maxlength="24">
-            <span class="hint">Include the unit: %, Elo, ECI, or pass@1.</span>
-          </div>
-        </div>
-        <div class="grid2">
-          <div class="field">
-            <label for="fHarness">Harness</label>
-            <select id="fHarness">
-              <option value="independent">Independent run</option>
-              <option value="vendor">Vendor-reported</option>
-              <option value="community">Community run</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="fSubmitter">Your handle</label>
-            <input id="fSubmitter" placeholder="optional" maxlength="40">
-          </div>
-        </div>
-        <div class="field">
-          <label for="fSource">Source link</label>
-          <input id="fSource" type="url" required placeholder="https://" maxlength="400">
-          <span class="hint">A public page showing the run. Records without a source are rejected.</span>
-        </div>
-        <div class="field">
-          <label for="fNote">Notes</label>
-          <textarea id="fNote" placeholder="Reasoning effort, tool budget, anything the reviewer should know." maxlength="500"></textarea>
-        </div>
-        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-          <button class="btn" type="submit" id="fSubmitBtn">Submit record</button>
-          <span id="fStatus" style="font-size:13px;color:var(--muted)"></span>
-        </div>
-      </form>
+      </div>
+      <div class="mx" id="matrix"></div>
     </div>
     <div class="card">
-      <div class="ch"><h2>Pending queue</h2><span class="n" id="queueCount">—</span></div>
-      <div class="cb queue" id="queue"><div class="empty">Waiting for the shared queue.</div></div>
+      <div class="ch"><h2>What each one measures</h2></div>
+      <div class="cb"><ul class="gloss" id="gloss"></ul></div>
     </div>
   </div>
 </section>
@@ -385,17 +379,17 @@ button{font:inherit;color:inherit}
   <div class="wrap rules">
     <article class="doc">
       <h1>List guidelines</h1>
-      <p class="lede">How models get placed, how points are awarded, and what counts as a record.</p>
+      <p class="lede">How models get placed, how points are awarded, and how benchmark scores are read.</p>
 
       <h2>What the list is</h2>
       <p>The Model List ranks language models by measured capability. Position #1 is the strongest model anyone has benchmarked, whether or not you can use it. Availability is shown as a status badge and never affects placement. Placements are decided by the list team from independent benchmark runs, blind-preference arenas and published system cards, then argued about in public.</p>
 
-      <h2>The three tiers</h2>
+      <h2>The tiers</h2>
       <ul>
         <li><b>Main list (#1–#15).</b> Current frontier. Full list points.</li>
         <li><b>Extended list (#16–#30).</b> Still competitive, usually a generation behind or a smaller tier of a main-list family. Reduced points.</li>
         <li><b>Legacy list (#31+).</b> Kept for history. No points. Models never leave the site once placed.</li>
-        <li><b>Watchlist.</b> Announced models with no benchmark result yet. Unranked, no points, listed at the bottom of the list so nobody is surprised when they arrive.</li>
+        <li><b>Watchlist.</b> Announced models with no benchmark result yet. Unranked, no points, listed at the bottom so nobody is surprised when they arrive.</li>
       </ul>
 
       <h2>Placement rules</h2>
@@ -407,16 +401,19 @@ button{font:inherit;color:inherit}
         <li>A model that is deprecated or removed from the API drops to legacy on the next update.</li>
       </ol>
 
+      <h2>Reading a benchmark row</h2>
+      <p>Each model page lists its benchmark scores. Every row shows who ran it (<b>independent</b> in green, <b>vendor</b> in red, <b>community</b> in blue), where the score stands against every other model on the list that has the same benchmark, and the source. The Benchmarks tab lays the same numbers out as a grid with the best score in each column highlighted.</p>
+
       <h2>Index scales</h2>
       <p>Artificial Analysis rescaled its Intelligence Index to v4.2 on 4 September 2026. Fable 5.1 reads 66 on v4.1 and 57 on v4.2. The list quotes v4.2 wherever it has been published and marks older entries <code>v4.1</code>. Epoch's Capabilities Index (ECI) is quoted where Epoch has run the model.</p>
 
-      <h2>What counts as a record</h2>
-      <p>A record is one benchmark result attached to one model: the benchmark, the score with its unit, who ran it, and a public source. Submit one from the Submit tab. Reviewers check the run configuration against the benchmark's rules before it appears on the model's page. A record tagged <b>list record</b> is the highest score on that benchmark across every model on the list.</p>
+      <h2>Not tracked yet</h2>
+      <p><b>Records.</b> On a list like this a record would be the best thing built with a single model in a set period, not a benchmark score. That is subjective enough that the list does not track it yet. If it ever does, it will be a separate section with its own rules, and benchmark scores will stay benchmark scores.</p>
 
       <h2>List team</h2>
       <ul class="team">
         <li><b>List owner</b><span>Final say on main-list order</span></li>
-        <li><b>Benchmark reviewers</b><span>Verify records and harnesses</span></li>
+        <li><b>Benchmark reviewers</b><span>Check harnesses and sources</span></li>
         <li><b>Agent testers</b><span>Long-horizon task evaluation</span></li>
         <li><b>Archivist</b><span>Legacy list and placement history</span></li>
       </ul>
@@ -442,6 +439,8 @@ button{font:inherit;color:inherit}
   </div>
 </section>
 
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
 <script>
 /* ===================== DATA ===================== */
 const LABS = {
@@ -460,116 +459,120 @@ const STATUS = {
   ga:"Generally available", restricted:"Restricted access", internal:"Internal only", preview:"Preview", announced:"Announced",
 };
 
-// records: [benchmark, score, harness(indep|vendor|community), source, bar 0-100 or null, isListRecord?]
+// scores: [benchmark, score, harness(indep|vendor|community), source, bar 0-100 or null]
 const MODELS = [
  {id:"claude-mythos-5-1",name:"Claude Mythos 5.1",lab:"anthropic",date:"2026-09-01",status:"restricted",weights:"closed",price:"$10 / $50",ctx:"1M",mark:"M5.1",
-  blurb:"The same weights as Fable 5.1 without the deployment safeguards, served only to approved organizations. It posts the highest Terminal-Bench 4.0 score on record, which is the gap the classifiers cost Fable. #1 on the numbers, not on availability.",
-  records:[["Artificial Analysis Index v4.2","57","indep","Artificial Analysis",57],["Terminal-Bench 4.0","60.9%","vendor","Fable 5.1 & Mythos 5.1 system card",60.9,true],["Epoch ECI","163","indep","Epoch AI",null]],
+  blurb:"The same weights as Fable 5.1 without the deployment safeguards, served only to approved organizations. It posts the highest Terminal-Bench 4.0 score anyone has published, which is the gap the classifiers cost Fable. #1 on the numbers, not on availability.",
+  scores:[["Artificial Analysis Index v4.2","57","indep","Artificial Analysis",57],["Terminal-Bench 4.0","60.9%","vendor","Fable 5.1 & Mythos 5.1 system card",60.9],["Epoch ECI","163","indep","Epoch AI",null]],
   history:[["2026-09-01","Listed as restricted variant of Fable 5.1"],["2026-09-05","Placed at #1 when restricted models were admitted"]]},
  {id:"claude-fable-5-1",name:"Claude Fable 5.1",lab:"anthropic",date:"2026-09-01",status:"ga",weights:"closed",price:"$10 / $50",ctx:"1M",mark:"F5.1",
   blurb:"Anthropic's top generally available model. Tops the Artificial Analysis index, the coding-agent index and Humanity's Last Exam with tools. The strongest model you can call today; only its own unrestricted twin sits above it.",
-  records:[["Artificial Analysis Index v4.2","57","indep","Artificial Analysis",57,true],["Humanity's Last Exam (tools)","65.0%","indep","Scale AI",65,true],["SWE-bench Pro","81.2%","vendor","Anthropic launch post",81.2,true],["Terminal-Bench 4.0","55.8%","indep","Terminal-Bench",55.8],["Epoch ECI","163","indep","Epoch AI",null],["GDPval-AA v2","1853 Elo","indep","Artificial Analysis",null]],
+  scores:[["Artificial Analysis Index v4.2","57","indep","Artificial Analysis",57],["Humanity's Last Exam (tools)","65.0%","indep","Scale AI",65],["SWE-bench Pro","81.2%","vendor","Anthropic launch post",81.2],["Terminal-Bench 4.0","55.8%","indep","Terminal-Bench",55.8],["Epoch ECI","163","indep","Epoch AI",null],["GDPval-AA v2","1853 Elo","indep","Artificial Analysis",null]],
   history:[["2026-09-01","Placed at #1 on release"],["2026-09-05","Moved to #2 below Mythos 5.1"]]},
  {id:"gpt-6-astra",name:"GPT-6 Astra",lab:"openai",date:"2026-09-03",status:"ga",weights:"closed",price:"$10 / $50",ctx:"1.05M",mark:"GPT-6",
-  blurb:"OpenAI's GPT-6 flagship, rolling out since 3 September after a four-week hold for cyber-risk review. The record Epoch ECI, ARC-AGI-2 at 95% and a saturated FrontierMath Tier 4. Artificial Analysis and the arena put it behind Fable 5.1; Epoch and ARC Prize put it ahead. The list splits the difference at #3.",
-  records:[["Epoch ECI","169","indep","Epoch AI",null,true],["ARC-AGI-2","95%","indep","ARC Prize",95,true],["ARC-AGI-3 (standard harness)","62.7%","indep","ARC Prize",62.7,true],["ARC-AGI-3 (adapter harness)","99.9%","vendor","OpenAI",99.9],["FrontierMath Tier 4 v2","97.6%","indep","Epoch AI",97.6,true],["Artificial Analysis Index v4.2","55","indep","Artificial Analysis",55],["GPQA Diamond","96%","vendor","OpenAI",96,true],["DeepSWE v1.1","74.1%","indep","DeepSWE",74.1]],
+  blurb:"OpenAI's GPT-6 flagship, rolling out since 3 September after a four-week hold for cyber-risk review. The highest Epoch ECI anyone has measured, ARC-AGI-2 at 95% and a saturated FrontierMath Tier 4. Artificial Analysis and the arena put it behind Fable 5.1; Epoch and ARC Prize put it ahead. The list splits the difference at #3.",
+  scores:[["Epoch ECI","169","indep","Epoch AI",null],["ARC-AGI-2","95%","indep","ARC Prize",95],["ARC-AGI-3 (standard harness)","62.7%","indep","ARC Prize",62.7],["ARC-AGI-3 (adapter harness)","99.9%","vendor","OpenAI",99.9],["FrontierMath Tier 4 v2","97.6%","indep","Epoch AI",97.6],["Artificial Analysis Index v4.2","55","indep","Artificial Analysis",55],["GPQA Diamond","96%","vendor","OpenAI",96],["DeepSWE v1.1","74.1%","indep","DeepSWE",74.1]],
   history:[["2026-09-03","Placed at #3 on release"]]},
  {id:"anthropic-model-2",name:"Anthropic Model 2",lab:"anthropic",date:"2026-08-14",status:"internal",weights:"closed",price:"not offered",ctx:"—",mark:"M2",
   blurb:"An internal model Anthropic describes in its August 2026 Risk Report as somewhat more capable than Mythos 5, with no release planned. The only evidence is Anthropic's internal capabilities index, so this entry carries the widest error bar on the list. It will be re-placed the moment anything independent appears.",
-  records:[["Anthropic AECI (internal)","~163","vendor","Anthropic Risk Report, Aug 2026",null]],
+  scores:[["Anthropic AECI (internal)","~163","vendor","Anthropic Risk Report, Aug 2026",null]],
   history:[["2026-09-05","Placed at #4 on internal evidence when unreleased models were admitted"]]},
  {id:"claude-opus-5",name:"Claude Opus 5",lab:"anthropic",date:"2026-07-24",status:"ga",weights:"closed",price:"$5 / $25",ctx:"1M",mark:"O5",
-  blurb:"Near-Fable capability at half the price. Holds the SWE-bench Verified record and held the ARC-AGI-3 record until Astra. Still tops the WebDev arena and GDPval. The list team's default recommendation for production agents.",
-  records:[["SWE-bench Verified","96.0%","indep","BenchLM",96,true],["Artificial Analysis Index v4.2","54","indep","Artificial Analysis",54],["Epoch ECI","161.6","indep","Epoch AI",null],["GDPval-AA v2","1858 Elo","indep","Artificial Analysis",null,true],["Arena WebDev","1688","indep","LMArena",null],["ARC-AGI-3 (standard harness)","30%","indep","ARC Prize",30]],
+  blurb:"Near-Fable capability at half the price. Best SWE-bench Verified score on the list and held the ARC-AGI-3 lead until Astra. Still tops the WebDev arena and GDPval. The list team's default recommendation for production agents.",
+  scores:[["SWE-bench Verified","96.0%","indep","BenchLM",96],["Artificial Analysis Index v4.2","54","indep","Artificial Analysis",54],["Epoch ECI","161.6","indep","Epoch AI",null],["GDPval-AA v2","1858 Elo","indep","Artificial Analysis",null],["Arena WebDev","1688","indep","LMArena",null],["ARC-AGI-3 (standard harness)","30%","indep","ARC Prize",30]],
   history:[["2026-07-24","Placed at #1 on release"],["2026-09-01","Moved to #2 below Fable 5.1"],["2026-09-05","Moved to #5"]]},
  {id:"claude-fable-5",name:"Claude Fable 5",lab:"anthropic",date:"2026-06-09",status:"ga",weights:"closed",price:"$10 / $50",ctx:"1M",mark:"F5",
   blurb:"The first Mythos-class model released to the public, also served unrestricted as Mythos 5 under Project Glasswing. Still #1 on the Arena text board with 27,000 votes. Superseded by 5.1 but ahead of every non-Anthropic model on agentic work.",
-  records:[["Arena text","1507","indep","LMArena",null,true],["Epoch ECI","162.5","indep","Epoch AI",null],["Artificial Analysis Index v4.2","53","indep","Artificial Analysis",53]],
+  scores:[["Arena text","1507","indep","LMArena",null],["Epoch ECI","162.5","indep","Epoch AI",null],["Artificial Analysis Index v4.2","53","indep","Artificial Analysis",53]],
   history:[["2026-06-09","Placed at #1 on release"],["2026-07-24","Moved to #2 below Opus 5"],["2026-09-03","Moved to #5"],["2026-09-05","Moved to #6"]]},
  {id:"muse-spark-1-3",name:"Muse Spark 1.3",lab:"meta",date:"2026-09-02",status:"ga",weights:"closed",price:"$1.25 / $4.25",ctx:"1M",mark:"MS1.3",
   blurb:"Meta's Muse flagship. Leads DeepSWE and 1M-context retrieval at the xhigh effort that everyone can use; the max effort is partner-only while safety testing finishes. The best price-to-capability ratio in the main list.",
-  records:[["DeepSWE v1.1","75.4%","indep","DeepSWE",75.4,true],["Artificial Analysis Index v4.2","53 (xhigh)","indep","Artificial Analysis",53],["Terminal-Bench 2.1","88.8%","indep","Artificial Analysis",88.8]],
+  scores:[["DeepSWE v1.1","75.4%","indep","DeepSWE",75.4],["Artificial Analysis Index v4.2","53 (xhigh)","indep","Artificial Analysis",53],["Terminal-Bench 2.1","88.8%","indep","Artificial Analysis",88.8]],
   history:[["2026-09-02","Placed at #4, replacing Muse Spark 1.2"],["2026-09-05","Moved to #7"]]},
  {id:"gpt-5-6-sol",name:"GPT-5.6 Sol",lab:"openai",date:"2026-07-09",status:"ga",weights:"closed",price:"$4 / $20",ctx:"400K",mark:"5.6S",
   blurb:"The top of the GPT-5.6 trio and the best value coder on the list. The Cyber variant is restricted. METR measured the highest reward-hacking rate of any public model, which is noted here and did not move the placement.",
-  records:[["ARC-AGI-2","92.5%","indep","ARC Prize",92.5],["Epoch ECI","161.1","indep","Epoch AI",null],["Artificial Analysis Index v4.2","51","indep","Artificial Analysis",51],["Terminal-Bench 2.1","89.5%","indep","Artificial Analysis",89.5,true],["Coding Agent Index","78.3","indep","Artificial Analysis",78.3],["LiveBench Math","96.2%","indep","LiveBench",96.2]],
+  scores:[["ARC-AGI-2","92.5%","indep","ARC Prize",92.5],["Epoch ECI","161.1","indep","Epoch AI",null],["Artificial Analysis Index v4.2","51","indep","Artificial Analysis",51],["Terminal-Bench 2.1","89.5%","indep","Artificial Analysis",89.5],["Coding Agent Index","78.3","indep","Artificial Analysis",78.3],["LiveBench Math","96.2%","indep","LiveBench",96.2]],
   history:[["2026-07-09","Placed at #3 on release"],["2026-09-03","Moved to #7"],["2026-09-05","Moved to #8"]]},
  {id:"grok-4-6",name:"Grok 4.6",lab:"xai",date:"2026-08-12",status:"ga",weights:"closed",price:"$2 / $6",ctx:"500K",mark:"G4.6",
-  blurb:"xAI's fastest and strongest shipping model. Topped GDPval-AA and AA-Briefcase at launch; weak on long-horizon terminal work. Grok 4.7 is due around 12 September and sits on the watchlist.",
-  records:[["Artificial Analysis Index v4.2","51","indep","Artificial Analysis",51],["Terminal-Bench 2.1","88.4%","indep","Artificial Analysis",88.4],["GDPval-AA v2","1753 Elo","indep","Artificial Analysis",null]],
+  blurb:"xAI's fastest and strongest shipping model. Topped GDPval-AA and AA-Briefcase at launch; weak on long-horizon terminal work. Grok 4.7 has missed its 11 September date and sits on the watchlist.",
+  scores:[["Artificial Analysis Index v4.2","51","indep","Artificial Analysis",51],["Terminal-Bench 2.1","88.4%","indep","Artificial Analysis",88.4],["GDPval-AA v2","1753 Elo","indep","Artificial Analysis",null]],
   history:[["2026-08-12","Placed at #5 on release"],["2026-09-03","Moved to #6"],["2026-09-05","Moved to #9"]]},
  {id:"kimi-k3",name:"Kimi K3",lab:"moonshot",date:"2026-07-16",status:"ga",weights:"open",price:"$3 / $15",ctx:"1M",mark:"K3",
   blurb:"The largest open-weight model ever shipped: 2.8T parameters, 104B active, native vision. Best open model on every index. Shipped with no system card; the UK AISI and CAISI cyber evaluation scored it at 32% against 76% for the US frontier.",
-  records:[["GPQA Diamond","93.5%","indep","Artificial Analysis",93.5],["BrowseComp","91.2%","indep","Artificial Analysis",91.2,true],["Artificial Analysis Index v4.2","50","indep","Artificial Analysis",50],["Arena Agent","#3","indep","LMArena",null]],
+  scores:[["GPQA Diamond","93.5%","indep","Artificial Analysis",93.5],["BrowseComp","91.2%","indep","Artificial Analysis",91.2],["Artificial Analysis Index v4.2","50","indep","Artificial Analysis",50],["Arena Agent","#3","indep","LMArena",null]],
   history:[["2026-07-16","Placed at #6 on release"],["2026-07-26","Open weights published"],["2026-09-03","Moved to #8"],["2026-09-05","Moved to #10"]]},
  {id:"gemini-3-8-flash",name:"Gemini 3.8 Flash",lab:"google",date:"2026-09-02",status:"ga",weights:"closed",price:"$0.75 / $3.75",ctx:"1M",mark:"3.8F",
   blurb:"Google's best shipping model is a Flash. Gemini 3.5 Pro has missed three targets and Gemini 4 is in training; both are on the watchlist. Terminal-Bench within a point of Sol at a fifth of the cost, and the widest multimodal input on the board.",
-  records:[["Artificial Analysis Index v4.1","59","indep","Artificial Analysis",59],["DeepSWE v1.1","73.7%","indep","DeepSWE",73.7],["Terminal-Bench 2.1","89.4%","indep","Artificial Analysis",89.4]],
+  scores:[["Artificial Analysis Index v4.1","59","indep","Artificial Analysis",59],["DeepSWE v1.1","73.7%","indep","DeepSWE",73.7],["Terminal-Bench 2.1","89.4%","indep","Artificial Analysis",89.4]],
   history:[["2026-09-02","Placed at #10, replacing Gemini 3.7 Flash"],["2026-09-05","Moved to #11"]]},
  {id:"glm-5-3",name:"GLM-5.3",lab:"zai",date:"2026-08-14",status:"ga",weights:"open",price:"$0.60 / $2.20",ctx:"1M",mark:"GLM",
   blurb:"Z.ai's coding-and-agents post-train of GLM-5, weights on Hugging Face since 28 August. Vendor numbers on CyberGym and Terminal-Bench 3.0 lead the open field. The independent index puts it in the main list; the vendor claims above Sol do not.",
-  records:[["Artificial Analysis Index v4.1","59.5","indep","Artificial Analysis",59.5],["DeepSWE","66.9%","vendor","Z.ai",66.9],["Terminal-Bench 3.0","28.3%","vendor","Z.ai",28.3],["CyberGym","84.5%","vendor","Z.ai",84.5]],
+  scores:[["Artificial Analysis Index v4.1","59.5","indep","Artificial Analysis",59.5],["DeepSWE","66.9%","vendor","Z.ai",66.9],["Terminal-Bench 3.0","28.3%","vendor","Z.ai",28.3],["CyberGym","84.5%","vendor","Z.ai",84.5]],
   history:[["2026-08-14","Placed at #8 on release"],["2026-08-28","Open weights published"],["2026-09-03","Moved to #9"],["2026-09-05","Moved to #12"]]},
  {id:"qwen3-8-max",name:"Qwen3.8-Max",lab:"alibaba",date:"2026-08-03",status:"ga",weights:"open",price:"$2 / $6",ctx:"1M",mark:"Q3.8",
   blurb:"2.4T parameters, 95B active, native vision. Weights released nine days after the hosted launch under Alibaba's own license, with no system card. The 0902 refresh tops the WebDev arena among open models.",
-  records:[["Arena WebDev (0902)","1691","indep","LMArena",null,true]],
+  scores:[["Arena WebDev","1691","indep","LMArena (0902 refresh)",null]],
   history:[["2026-08-03","Placed at #9 on release"],["2026-08-12","Open weights published"],["2026-09-03","Moved to #11"],["2026-09-05","Moved to #13"]]},
  {id:"deepseek-v4-pro",name:"DeepSeek-V4-Pro",lab:"deepseek",date:"2026-08-13",status:"ga",weights:"open",price:"$1.32 / $3.96",ctx:"1M",mark:"V4P",
   blurb:"1.6T-parameter MoE with 49B active, MIT licensed. Off-peak pricing makes it the cheapest frontier-adjacent output token available. CAISI's evaluation puts it below the US frontier on agentic and cyber tasks, which is where the list has it.",
-  records:[["Off-peak output price","$1.98 / M","indep","DeepSeek pricing page",null]],
+  scores:[["Off-peak output price","$1.98 / M","indep","DeepSeek pricing page",null]],
   history:[["2026-08-13","Placed at #10 on GA"],["2026-09-03","Moved to #12"],["2026-09-05","Moved to #14"]]},
  {id:"claude-sonnet-5",name:"Claude Sonnet 5",lab:"anthropic",date:"2026-06-30",status:"ga",weights:"closed",price:"$2 / $10",ctx:"1M",mark:"S5",
   blurb:"The balanced tier of the Claude 5 family. Best language score on LiveBench and the default in most coding tools. Last place in the main list because it trades peak reasoning for speed.",
-  records:[["LiveBench Language","90.7","indep","LiveBench",90.7,true]],
+  scores:[["LiveBench Language","90.7","indep","LiveBench",90.7]],
   history:[["2026-06-30","Placed at #7 on release"],["2026-09-03","Moved to #13"],["2026-09-05","Moved to #15"]]},
  /* ---------------- extended ---------------- */
- {id:"glm-5-3-flash",name:"GLM-5.3-Flash",lab:"zai",date:"2026-08-26",status:"ga",weights:"open",price:"$0.15 / $0.50",ctx:"1M",mark:"GLMF",blurb:"Terminal-Bench 84 and DeepSWE 63 under an independent harness for fifty cents per million output tokens. MIT licensed.",records:[["Artificial Analysis Index v4.1","57","indep","Artificial Analysis",57],["Terminal-Bench 2.1","84.3%","indep","Artificial Analysis",84.3],["DeepSWE v1.1","63.4%","indep","DeepSWE",63.4],["GDPval-AA v2","1773 Elo","indep","Artificial Analysis",null]],history:[["2026-08-26","Placed at #14 on release"],["2026-09-05","Moved to extended at #16"]]},
- {id:"gemini-3-1-pro",name:"Gemini 3.1 Pro",lab:"google",date:"2026-02-19",status:"ga",weights:"closed",price:"$2 / $12",ctx:"1M",mark:"3.1P",blurb:"Google's Pro-tier slot, now seven months old. Still the strongest ARC-AGI-1 number of any Google model.",records:[["GPQA Diamond","94.1%","indep","Artificial Analysis",94.1],["Humanity's Last Exam","44.4%","indep","Artificial Analysis",44.4],["ARC-AGI-1","98%","indep","ARC Prize",98,true]],history:[["2026-02-19","Placed at #2 on release"],["2026-09-03","Moved to #15"],["2026-09-05","Moved to extended at #17"]]},
- {id:"grok-4-5",name:"Grok 4.5",lab:"xai",date:"2026-07-08",status:"ga",weights:"closed",price:"$2 / $6",ctx:"500K",mark:"G4.5",blurb:"Previous xAI flagship. Replaced by 4.6 after five weeks.",records:[],history:[["2026-07-08","Placed at #6"],["2026-08-12","Moved to extended"]]},
- {id:"gpt-5-5",name:"GPT-5.5",lab:"openai",date:"2026-04-23",status:"ga",weights:"closed",price:"$2.50 / $15",ctx:"400K",mark:"5.5",blurb:"OpenAI flagship for eleven weeks in spring 2026. Still widely deployed.",records:[],history:[["2026-04-23","Placed at #1"],["2026-07-09","Moved to extended"]]},
- {id:"muse-spark-1-2",name:"Muse Spark 1.2",lab:"meta",date:"2026-08-05",status:"ga",weights:"closed",price:"$1.25 / $4.25",ctx:"1M",mark:"MS1.2",blurb:"Meta's August flagship, replaced by 1.3 a month later.",records:[],history:[["2026-08-05","Placed at #7"],["2026-09-02","Moved to extended"]]},
- {id:"gpt-5-6-terra",name:"GPT-5.6 Terra",lab:"openai",date:"2026-07-09",status:"ga",weights:"closed",price:"$2 / $12",ctx:"400K",mark:"5.6T",blurb:"Balanced tier of the 5.6 trio. Same tools and context as Sol at half the price.",records:[],history:[["2026-07-09","Placed at #16"]]},
- {id:"gemini-3-6-flash",name:"Gemini 3.6 Flash",lab:"google",date:"2026-07-21",status:"ga",weights:"closed",price:"$0.75 / $3.75",ctx:"1M",mark:"3.6F",blurb:"July Flash iteration. Seven points behind 3.8 on the v4.1 index.",records:[["Artificial Analysis Index v4.1","52","indep","Artificial Analysis",52]],history:[["2026-07-21","Placed at #12"],["2026-09-02","Moved to extended"]]},
- {id:"deepseek-v4-flash",name:"DeepSeek-V4-Flash",lab:"deepseek",date:"2026-07-31",status:"ga",weights:"open",price:"$0.44 / $1.32",ctx:"1M",mark:"V4F",blurb:"The fast V4. Terminal-Bench 78.7 for a few cents.",records:[["Artificial Analysis Index v4.1","52","indep","Artificial Analysis",52],["Terminal-Bench 2.1","78.7%","indep","Artificial Analysis",78.7]],history:[["2026-07-31","Placed at #14"],["2026-09-03","Moved to extended"]]},
- {id:"mistral-medium-3-5",name:"Mistral Medium 3.5",lab:"mistral",date:"2026-04-28",status:"ga",weights:"open",price:"$0.40 / $2",ctx:"256K",mark:"MM3.5",blurb:"128B dense, multimodal, modified-MIT license. Europe's strongest open model.",records:[],history:[["2026-04-28","Placed at #13"],["2026-08-14","Moved to extended"]]},
- {id:"claude-opus-4-8",name:"Claude Opus 4.8",lab:"anthropic",date:"2026-05-28",status:"ga",weights:"closed",price:"$5 / $25",ctx:"1M",mark:"O4.8",blurb:"Last of the Opus 4 line, shipped 42 days after 4.7. Superseded by Opus 5.",records:[],history:[["2026-05-28","Placed at #1"],["2026-06-09","Moved to #2"],["2026-07-24","Moved to extended"]]},
- {id:"qwen3-8-27b",name:"Qwen3.8-27B",lab:"alibaba",date:"2026-08-14",status:"ga",weights:"open",price:"free (self-host)",ctx:"262K",mark:"27B",blurb:"Frontier-adjacent coding on a single GPU. The most downloaded release of August.",records:[],history:[["2026-08-14","Placed at #22"]]},
- {id:"glm-5-2-turbo",name:"GLM-5.2 Turbo",lab:"zai",date:"2026-08-17",status:"ga",weights:"open",price:"$0.30 / $1.10",ctx:"1M",mark:"5.2T",blurb:"Speed-tuned GLM-5.2. Outclassed by 5.3-Flash nine days later.",records:[],history:[["2026-08-17","Placed at #24"]]},
- {id:"muse-glimmer-30b",name:"Muse Glimmer 30B",lab:"meta",date:"2026-08-10",status:"ga",weights:"open",price:"free (self-host)",ctx:"256K",mark:"MG30",blurb:"Meta's Apache 2.0 downloadable model. Small, permissive, everywhere.",records:[],history:[["2026-08-10","Placed at #26"]]},
- {id:"qwen3-8-flash",name:"Qwen3.8-Flash",lab:"alibaba",date:"2026-08-26",status:"ga",weights:"open",price:"$0.20 / $0.80",ctx:"1M",mark:"Q3.8F",blurb:"Qwen's fast tier of the 3.8 generation.",records:[],history:[["2026-08-26","Placed at #27"]]},
- {id:"gpt-5-6-luna",name:"GPT-5.6 Luna",lab:"openai",date:"2026-07-09",status:"ga",weights:"closed",price:"$0.20 / $1.20",ctx:"400K",mark:"5.6L",blurb:"Cost tier of the 5.6 trio.",records:[],history:[["2026-07-09","Placed at #25"]]},
+ {id:"glm-5-3-flash",name:"GLM-5.3-Flash",lab:"zai",date:"2026-08-26",status:"ga",weights:"open",price:"$0.15 / $0.50",ctx:"1M",mark:"GLMF",blurb:"Terminal-Bench 84 and DeepSWE 63 under an independent harness for fifty cents per million output tokens. MIT licensed.",scores:[["Artificial Analysis Index v4.1","57","indep","Artificial Analysis",57],["Terminal-Bench 2.1","84.3%","indep","Artificial Analysis",84.3],["DeepSWE v1.1","63.4%","indep","DeepSWE",63.4],["GDPval-AA v2","1773 Elo","indep","Artificial Analysis",null]],history:[["2026-08-26","Placed at #14 on release"],["2026-09-05","Moved to extended at #16"]]},
+ {id:"gemini-3-1-pro",name:"Gemini 3.1 Pro",lab:"google",date:"2026-02-19",status:"ga",weights:"closed",price:"$2 / $12",ctx:"1M",mark:"3.1P",blurb:"Google's Pro-tier slot, now seven months old. Still the strongest ARC-AGI-1 number of any Google model.",scores:[["GPQA Diamond","94.1%","indep","Artificial Analysis",94.1],["Humanity's Last Exam","44.4%","indep","Artificial Analysis",44.4],["ARC-AGI-1","98%","indep","ARC Prize",98]],history:[["2026-02-19","Placed at #2 on release"],["2026-09-03","Moved to #15"],["2026-09-05","Moved to extended at #17"]]},
+ {id:"grok-4-5",name:"Grok 4.5",lab:"xai",date:"2026-07-08",status:"ga",weights:"closed",price:"$2 / $6",ctx:"500K",mark:"G4.5",blurb:"Previous xAI flagship. Replaced by 4.6 after five weeks.",scores:[],history:[["2026-07-08","Placed at #6"],["2026-08-12","Moved to extended"]]},
+ {id:"gpt-5-5",name:"GPT-5.5",lab:"openai",date:"2026-04-23",status:"ga",weights:"closed",price:"$2.50 / $15",ctx:"400K",mark:"5.5",blurb:"OpenAI flagship for eleven weeks in spring 2026. Still widely deployed.",scores:[],history:[["2026-04-23","Placed at #1"],["2026-07-09","Moved to extended"]]},
+ {id:"muse-spark-1-2",name:"Muse Spark 1.2",lab:"meta",date:"2026-08-05",status:"ga",weights:"closed",price:"$1.25 / $4.25",ctx:"1M",mark:"MS1.2",blurb:"Meta's August flagship, replaced by 1.3 a month later.",scores:[],history:[["2026-08-05","Placed at #7"],["2026-09-02","Moved to extended"]]},
+ {id:"gpt-5-6-terra",name:"GPT-5.6 Terra",lab:"openai",date:"2026-07-09",status:"ga",weights:"closed",price:"$2 / $12",ctx:"400K",mark:"5.6T",blurb:"Balanced tier of the 5.6 trio. Same tools and context as Sol at half the price.",scores:[],history:[["2026-07-09","Placed at #16"]]},
+ {id:"gemini-3-6-flash",name:"Gemini 3.6 Flash",lab:"google",date:"2026-07-21",status:"ga",weights:"closed",price:"$0.75 / $3.75",ctx:"1M",mark:"3.6F",blurb:"July Flash iteration. Seven points behind 3.8 on the v4.1 index.",scores:[["Artificial Analysis Index v4.1","52","indep","Artificial Analysis",52]],history:[["2026-07-21","Placed at #12"],["2026-09-02","Moved to extended"]]},
+ {id:"deepseek-v4-flash",name:"DeepSeek-V4-Flash",lab:"deepseek",date:"2026-07-31",status:"ga",weights:"open",price:"$0.44 / $1.32",ctx:"1M",mark:"V4F",blurb:"The fast V4. Terminal-Bench 78.7 for a few cents.",scores:[["Artificial Analysis Index v4.1","52","indep","Artificial Analysis",52],["Terminal-Bench 2.1","78.7%","indep","Artificial Analysis",78.7]],history:[["2026-07-31","Placed at #14"],["2026-09-03","Moved to extended"]]},
+ {id:"mistral-medium-3-5",name:"Mistral Medium 3.5",lab:"mistral",date:"2026-04-28",status:"ga",weights:"open",price:"$0.40 / $2",ctx:"256K",mark:"MM3.5",blurb:"128B dense, multimodal, modified-MIT license. Europe's strongest open model.",scores:[],history:[["2026-04-28","Placed at #13"],["2026-08-14","Moved to extended"]]},
+ {id:"claude-opus-4-8",name:"Claude Opus 4.8",lab:"anthropic",date:"2026-05-28",status:"ga",weights:"closed",price:"$5 / $25",ctx:"1M",mark:"O4.8",blurb:"Last of the Opus 4 line, shipped 42 days after 4.7. Superseded by Opus 5.",scores:[],history:[["2026-05-28","Placed at #1"],["2026-06-09","Moved to #2"],["2026-07-24","Moved to extended"]]},
+ {id:"qwen3-8-27b",name:"Qwen3.8-27B",lab:"alibaba",date:"2026-08-14",status:"ga",weights:"open",price:"free (self-host)",ctx:"262K",mark:"27B",blurb:"Frontier-adjacent coding on a single GPU. The most downloaded release of August.",scores:[],history:[["2026-08-14","Placed at #22"]]},
+ {id:"glm-5-2-turbo",name:"GLM-5.2 Turbo",lab:"zai",date:"2026-08-17",status:"ga",weights:"open",price:"$0.30 / $1.10",ctx:"1M",mark:"5.2T",blurb:"Speed-tuned GLM-5.2. Outclassed by 5.3-Flash nine days later.",scores:[],history:[["2026-08-17","Placed at #24"]]},
+ {id:"muse-glimmer-30b",name:"Muse Glimmer 30B",lab:"meta",date:"2026-08-10",status:"ga",weights:"open",price:"free (self-host)",ctx:"256K",mark:"MG30",blurb:"Meta's Apache 2.0 downloadable model. Small, permissive, everywhere.",scores:[],history:[["2026-08-10","Placed at #26"]]},
+ {id:"qwen3-8-flash",name:"Qwen3.8-Flash",lab:"alibaba",date:"2026-08-26",status:"ga",weights:"open",price:"$0.20 / $0.80",ctx:"1M",mark:"Q3.8F",blurb:"Qwen's fast tier of the 3.8 generation.",scores:[],history:[["2026-08-26","Placed at #27"]]},
+ {id:"gpt-5-6-luna",name:"GPT-5.6 Luna",lab:"openai",date:"2026-07-09",status:"ga",weights:"closed",price:"$0.20 / $1.20",ctx:"400K",mark:"5.6L",blurb:"Cost tier of the 5.6 trio.",scores:[],history:[["2026-07-09","Placed at #25"]]},
  /* ---------------- legacy ---------------- */
- {id:"claude-haiku-4-5",name:"Claude Haiku 4.5",lab:"anthropic",date:"2025-10-15",status:"ga",weights:"closed",price:"$1 / $5",ctx:"200K",mark:"H4.5",blurb:"Anthropic's small model, still the fastest Claude. Nearly a year old.",records:[],history:[["2025-10-15","Placed at #9"],["2026-04-23","Moved to extended"],["2026-09-05","Moved to legacy"]]},
- {id:"claude-opus-4-6",name:"Claude Opus 4.6",lab:"anthropic",date:"2026-02-05",status:"ga",weights:"closed",price:"$5 / $25",ctx:"1M",mark:"O4.6",blurb:"Winter 2026 flagship. First Claude with a 1M context.",records:[],history:[["2026-02-05","Placed at #1"],["2026-04-23","Moved to #2"],["2026-05-28","Moved to extended"],["2026-09-05","Moved to legacy"]]},
- {id:"claude-sonnet-4-6",name:"Claude Sonnet 4.6",lab:"anthropic",date:"2026-02-17",status:"ga",weights:"closed",price:"$3 / $15",ctx:"1M",mark:"S4.6",blurb:"Matched Opus 4.6 on office tasks at a fifth of the price.",records:[["SWE-bench Verified","79.6%","vendor","Anthropic",79.6]],history:[["2026-02-17","Placed at #4"],["2026-09-03","Moved to legacy"]]},
- {id:"gpt-5-2",name:"GPT-5.2",lab:"openai",date:"2025-12-11",status:"ga",weights:"closed",price:"$1.75 / $14",ctx:"400K",mark:"5.2",blurb:"First model above 90% on ARC-AGI-1. Beat human experts on 70.9% of GDPval tasks.",records:[["ARC-AGI-1","90%+","indep","ARC Prize",90],["AIME 2025","100%","vendor","OpenAI",100],["FrontierMath","40.3%","vendor","OpenAI",40.3]],history:[["2025-12-11","Placed at #1"],["2026-02-05","Moved to #2"],["2026-07-09","Moved to legacy"]]},
- {id:"gpt-5-1",name:"GPT-5.1",lab:"openai",date:"2025-11-12",status:"ga",weights:"closed",price:"$1.25 / $10",ctx:"400K",mark:"5.1",blurb:"Incremental step between GPT-5 and 5.2.",records:[],history:[["2025-11-12","Placed at #2"],["2026-04-23","Moved to legacy"]]},
- {id:"claude-opus-4-5",name:"Claude Opus 4.5",lab:"anthropic",date:"2025-11-24",status:"ga",weights:"closed",price:"$5 / $25",ctx:"200K",mark:"O4.5",blurb:"Brought Opus pricing down to $5/$25 and briefly held #1.",records:[],history:[["2025-11-24","Placed at #1"],["2025-12-11","Moved to #2"],["2026-07-09","Moved to legacy"]]},
- {id:"claude-sonnet-4-5",name:"Claude Sonnet 4.5",lab:"anthropic",date:"2025-09-29",status:"ga",weights:"closed",price:"$3 / $15",ctx:"200K",mark:"S4.5",blurb:"The model that made 30-hour agent runs a talking point.",records:[["SWE-bench Verified","77.2%","vendor","Anthropic",77.2]],history:[["2025-09-29","Placed at #1"],["2026-07-09","Moved to legacy"]]},
- {id:"gemini-2-5-pro",name:"Gemini 2.5 Pro",lab:"google",date:"2025-06-17",status:"ga",weights:"closed",price:"$1.25 / $10",ctx:"1M",mark:"2.5P",blurb:"Google's 2025 workhorse. Held #1 on the arena for much of spring 2025.",records:[],history:[["2025-06-17","Placed at #1"],["2026-02-19","Moved to legacy"]]},
- {id:"gpt-5",name:"GPT-5",lab:"openai",date:"2025-08-07",status:"ga",weights:"closed",price:"$1.25 / $10",ctx:"400K",mark:"GPT-5",blurb:"Unified reasoning and non-reasoning routing in one model.",records:[["SWE-bench Verified","74.9%","vendor","OpenAI",74.9]],history:[["2025-08-07","Placed at #1"],["2026-02-05","Moved to legacy"]]},
- {id:"grok-4",name:"Grok 4",lab:"xai",date:"2025-07-09",status:"ga",weights:"closed",price:"$3 / $15",ctx:"256K",mark:"G4",blurb:"First xAI model in the top five.",records:[["Humanity's Last Exam (Heavy, tools)","44.4%","vendor","xAI",44.4]],history:[["2025-07-09","Placed at #2"],["2026-04-23","Moved to legacy"]]},
- {id:"deepseek-r1",name:"DeepSeek R1",lab:"deepseek",date:"2025-01-20",status:"ga",weights:"open",price:"$0.55 / $2.19",ctx:"164K",mark:"R1",blurb:"The open reasoning model that moved markets. MIT licensed.",records:[],history:[["2025-01-20","Placed at #3"],["2025-08-07","Moved to extended"],["2026-02-05","Moved to legacy"]]},
- {id:"kimi-k2-thinking",name:"Kimi K2 Thinking",lab:"moonshot",date:"2025-11-06",status:"ga",weights:"open",price:"$0.60 / $2.50",ctx:"256K",mark:"K2T",blurb:"1T-parameter open reasoning model; Moonshot's first top-ten placement.",records:[],history:[["2025-11-06","Placed at #6"],["2026-07-16","Moved to legacy"]]},
- {id:"claude-opus-4-1",name:"Claude Opus 4.1",lab:"anthropic",date:"2025-08-05",status:"ga",weights:"closed",price:"$15 / $75",ctx:"200K",mark:"O4.1",blurb:"Last of the $15/$75 Opus models.",records:[["SWE-bench Verified","74.5%","vendor","Anthropic",74.5]],history:[["2025-08-05","Placed at #1"],["2025-08-07","Moved to #2"],["2026-02-05","Moved to legacy"]]},
- {id:"qwen3-next-80b",name:"Qwen3-Next 80B",lab:"alibaba",date:"2025-09-11",status:"ga",weights:"open",price:"free (self-host)",ctx:"262K",mark:"Q3N",blurb:"Hybrid-attention 80B with 3B active. A preview of the 3.8 architecture.",records:[],history:[["2025-09-11","Placed at #18"],["2026-08-03","Moved to legacy"]]},
- {id:"deepseek-v3",name:"DeepSeek V3",lab:"deepseek",date:"2024-12-26",status:"ga",weights:"open",price:"$0.27 / $1.10",ctx:"128K",mark:"V3",blurb:"671B MoE trained for under six million dollars of compute.",records:[],history:[["2024-12-26","Placed at #5"],["2025-08-07","Moved to extended"],["2026-02-05","Moved to legacy"]]},
- {id:"gpt-4-1",name:"GPT-4.1",lab:"openai",date:"2025-04-14",status:"ga",weights:"closed",price:"$2 / $8",ctx:"1M",mark:"4.1",blurb:"First OpenAI model with a 1M context.",records:[],history:[["2025-04-14","Placed at #4"],["2025-11-12","Moved to legacy"]]},
- {id:"llama-4-maverick",name:"Llama 4 Maverick",lab:"meta",date:"2025-04-05",status:"ga",weights:"open",price:"$0.20 / $0.60",ctx:"1M",mark:"L4M",blurb:"Meta's last Llama-branded frontier attempt before the Muse line.",records:[],history:[["2025-04-05","Placed at #12"],["2026-02-05","Moved to legacy"]]},
- {id:"claude-opus-4",name:"Claude Opus 4",lab:"anthropic",date:"2025-05-22",status:"ga",weights:"closed",price:"$15 / $75",ctx:"200K",mark:"O4",blurb:"Deprecated January 2026.",records:[],history:[["2025-05-22","Placed at #1"],["2025-08-05","Moved to #3"],["2026-01-15","Moved to legacy (deprecated)"]]},
- {id:"gemini-2-5-flash",name:"Gemini 2.5 Flash",lab:"google",date:"2025-06-17",status:"ga",weights:"closed",price:"$0.30 / $2.50",ctx:"1M",mark:"2.5F",blurb:"The Flash tier that made 'Flash' a frontier word.",records:[],history:[["2025-06-17","Placed at #14"],["2026-02-19","Moved to legacy"]]},
- {id:"gpt-4o",name:"GPT-4o",lab:"openai",date:"2024-05-13",status:"ga",weights:"closed",price:"$2.50 / $10",ctx:"128K",mark:"4o",blurb:"The omni model. Two years old and still on someone's default route.",records:[],history:[["2024-05-13","Placed at #1"],["2024-12-26","Moved to #3"],["2025-08-07","Moved to legacy"]]},
+ {id:"claude-haiku-4-5",name:"Claude Haiku 4.5",lab:"anthropic",date:"2025-10-15",status:"ga",weights:"closed",price:"$1 / $5",ctx:"200K",mark:"H4.5",blurb:"Anthropic's small model, still the fastest Claude. Nearly a year old.",scores:[],history:[["2025-10-15","Placed at #9"],["2026-04-23","Moved to extended"],["2026-09-05","Moved to legacy"]]},
+ {id:"claude-opus-4-6",name:"Claude Opus 4.6",lab:"anthropic",date:"2026-02-05",status:"ga",weights:"closed",price:"$5 / $25",ctx:"1M",mark:"O4.6",blurb:"Winter 2026 flagship. First Claude with a 1M context.",scores:[],history:[["2026-02-05","Placed at #1"],["2026-04-23","Moved to #2"],["2026-05-28","Moved to extended"],["2026-09-05","Moved to legacy"]]},
+ {id:"claude-sonnet-4-6",name:"Claude Sonnet 4.6",lab:"anthropic",date:"2026-02-17",status:"ga",weights:"closed",price:"$3 / $15",ctx:"1M",mark:"S4.6",blurb:"Matched Opus 4.6 on office tasks at a fifth of the price.",scores:[["SWE-bench Verified","79.6%","vendor","Anthropic",79.6]],history:[["2026-02-17","Placed at #4"],["2026-09-03","Moved to legacy"]]},
+ {id:"gpt-5-2",name:"GPT-5.2",lab:"openai",date:"2025-12-11",status:"ga",weights:"closed",price:"$1.75 / $14",ctx:"400K",mark:"5.2",blurb:"First model above 90% on ARC-AGI-1. Beat human experts on 70.9% of GDPval tasks.",scores:[["ARC-AGI-1","90%+","indep","ARC Prize",90],["AIME 2025","100%","vendor","OpenAI",100],["FrontierMath","40.3%","vendor","OpenAI",40.3]],history:[["2025-12-11","Placed at #1"],["2026-02-05","Moved to #2"],["2026-07-09","Moved to legacy"]]},
+ {id:"gpt-5-1",name:"GPT-5.1",lab:"openai",date:"2025-11-12",status:"ga",weights:"closed",price:"$1.25 / $10",ctx:"400K",mark:"5.1",blurb:"Incremental step between GPT-5 and 5.2.",scores:[],history:[["2025-11-12","Placed at #2"],["2026-04-23","Moved to legacy"]]},
+ {id:"claude-opus-4-5",name:"Claude Opus 4.5",lab:"anthropic",date:"2025-11-24",status:"ga",weights:"closed",price:"$5 / $25",ctx:"200K",mark:"O4.5",blurb:"Brought Opus pricing down to $5/$25 and briefly held #1.",scores:[],history:[["2025-11-24","Placed at #1"],["2025-12-11","Moved to #2"],["2026-07-09","Moved to legacy"]]},
+ {id:"claude-sonnet-4-5",name:"Claude Sonnet 4.5",lab:"anthropic",date:"2025-09-29",status:"ga",weights:"closed",price:"$3 / $15",ctx:"200K",mark:"S4.5",blurb:"The model that made 30-hour agent runs a talking point.",scores:[["SWE-bench Verified","77.2%","vendor","Anthropic",77.2]],history:[["2025-09-29","Placed at #1"],["2026-07-09","Moved to legacy"]]},
+ {id:"gemini-2-5-pro",name:"Gemini 2.5 Pro",lab:"google",date:"2025-06-17",status:"ga",weights:"closed",price:"$1.25 / $10",ctx:"1M",mark:"2.5P",blurb:"Google's 2025 workhorse. Held #1 on the arena for much of spring 2025.",scores:[],history:[["2025-06-17","Placed at #1"],["2026-02-19","Moved to legacy"]]},
+ {id:"gpt-5",name:"GPT-5",lab:"openai",date:"2025-08-07",status:"ga",weights:"closed",price:"$1.25 / $10",ctx:"400K",mark:"GPT-5",blurb:"Unified reasoning and non-reasoning routing in one model.",scores:[["SWE-bench Verified","74.9%","vendor","OpenAI",74.9]],history:[["2025-08-07","Placed at #1"],["2026-02-05","Moved to legacy"]]},
+ {id:"grok-4",name:"Grok 4",lab:"xai",date:"2025-07-09",status:"ga",weights:"closed",price:"$3 / $15",ctx:"256K",mark:"G4",blurb:"First xAI model in the top five.",scores:[["Humanity's Last Exam (Heavy, tools)","44.4%","vendor","xAI",44.4]],history:[["2025-07-09","Placed at #2"],["2026-04-23","Moved to legacy"]]},
+ {id:"deepseek-r1",name:"DeepSeek R1",lab:"deepseek",date:"2025-01-20",status:"ga",weights:"open",price:"$0.55 / $2.19",ctx:"164K",mark:"R1",blurb:"The open reasoning model that moved markets. MIT licensed.",scores:[],history:[["2025-01-20","Placed at #3"],["2025-08-07","Moved to extended"],["2026-02-05","Moved to legacy"]]},
+ {id:"kimi-k2-thinking",name:"Kimi K2 Thinking",lab:"moonshot",date:"2025-11-06",status:"ga",weights:"open",price:"$0.60 / $2.50",ctx:"256K",mark:"K2T",blurb:"1T-parameter open reasoning model; Moonshot's first top-ten placement.",scores:[],history:[["2025-11-06","Placed at #6"],["2026-07-16","Moved to legacy"]]},
+ {id:"claude-opus-4-1",name:"Claude Opus 4.1",lab:"anthropic",date:"2025-08-05",status:"ga",weights:"closed",price:"$15 / $75",ctx:"200K",mark:"O4.1",blurb:"Last of the $15/$75 Opus models.",scores:[["SWE-bench Verified","74.5%","vendor","Anthropic",74.5]],history:[["2025-08-05","Placed at #1"],["2025-08-07","Moved to #2"],["2026-02-05","Moved to legacy"]]},
+ {id:"qwen3-next-80b",name:"Qwen3-Next 80B",lab:"alibaba",date:"2025-09-11",status:"ga",weights:"open",price:"free (self-host)",ctx:"262K",mark:"Q3N",blurb:"Hybrid-attention 80B with 3B active. A preview of the 3.8 architecture.",scores:[],history:[["2025-09-11","Placed at #18"],["2026-08-03","Moved to legacy"]]},
+ {id:"deepseek-v3",name:"DeepSeek V3",lab:"deepseek",date:"2024-12-26",status:"ga",weights:"open",price:"$0.27 / $1.10",ctx:"128K",mark:"V3",blurb:"671B MoE trained for under six million dollars of compute.",scores:[],history:[["2024-12-26","Placed at #5"],["2025-08-07","Moved to extended"],["2026-02-05","Moved to legacy"]]},
+ {id:"gpt-4-1",name:"GPT-4.1",lab:"openai",date:"2025-04-14",status:"ga",weights:"closed",price:"$2 / $8",ctx:"1M",mark:"4.1",blurb:"First OpenAI model with a 1M context.",scores:[],history:[["2025-04-14","Placed at #4"],["2025-11-12","Moved to legacy"]]},
+ {id:"llama-4-maverick",name:"Llama 4 Maverick",lab:"meta",date:"2025-04-05",status:"ga",weights:"open",price:"$0.20 / $0.60",ctx:"1M",mark:"L4M",blurb:"Meta's last Llama-branded frontier attempt before the Muse line.",scores:[],history:[["2025-04-05","Placed at #12"],["2026-02-05","Moved to legacy"]]},
+ {id:"claude-opus-4",name:"Claude Opus 4",lab:"anthropic",date:"2025-05-22",status:"ga",weights:"closed",price:"$15 / $75",ctx:"200K",mark:"O4",blurb:"Deprecated January 2026.",scores:[],history:[["2025-05-22","Placed at #1"],["2025-08-05","Moved to #3"],["2026-01-15","Moved to legacy (deprecated)"]]},
+ {id:"gemini-2-5-flash",name:"Gemini 2.5 Flash",lab:"google",date:"2025-06-17",status:"ga",weights:"closed",price:"$0.30 / $2.50",ctx:"1M",mark:"2.5F",blurb:"The Flash tier that made 'Flash' a frontier word.",scores:[],history:[["2025-06-17","Placed at #14"],["2026-02-19","Moved to legacy"]]},
+ {id:"gpt-4o",name:"GPT-4o",lab:"openai",date:"2024-05-13",status:"ga",weights:"closed",price:"$2.50 / $10",ctx:"128K",mark:"4o",blurb:"The omni model. Two years old and still on someone's default route.",scores:[],history:[["2024-05-13","Placed at #1"],["2024-12-26","Moved to #3"],["2025-08-07","Moved to legacy"]]},
 ];
+
+// Order of the previous issue (3 September 2026). Used to show movement.
+const PREV_ISSUE=["claude-fable-5-1","claude-opus-5","gpt-6-astra","muse-spark-1-3","claude-fable-5","grok-4-6","gpt-5-6-sol","kimi-k3","glm-5-3","gemini-3-8-flash","qwen3-8-max","deepseek-v4-pro","claude-sonnet-5","glm-5-3-flash","gemini-3-1-pro","grok-4-5","gpt-5-5","muse-spark-1-2","gpt-5-6-terra","gemini-3-6-flash","deepseek-v4-flash","mistral-medium-3-5","qwen3-8-27b","claude-opus-4-8","glm-5-2-turbo","muse-glimmer-30b","qwen3-8-flash","gpt-5-6-luna","claude-haiku-4-5","claude-opus-4-6","claude-sonnet-4-6","gpt-5-2","gpt-5-1","claude-opus-4-5","claude-sonnet-4-5","gemini-2-5-pro","gpt-5","grok-4","deepseek-r1","kimi-k2-thinking","claude-opus-4-1","qwen3-next-80b","deepseek-v3","gpt-4-1","llama-4-maverick","claude-opus-4","gemini-2-5-flash","gpt-4o"];
 
 // Announced with no benchmark result yet. Unranked.
 const WATCH = [
- {id:"grok-4-7",name:"Grok 4.7",lab:"xai",date:"2026-09-12",status:"announced",weights:"closed",price:"—",ctx:"—",mark:"G4.7",blurb:"xAI has said Grok 4.7 lands around 12 September. No numbers yet. Expected to place near Grok 4.6 unless the long-horizon terminal weakness is fixed.",why:"No benchmark result exists. Placed the day one does."},
- {id:"gemini-3-5-pro",name:"Gemini 3.5 Pro",lab:"google",date:"2026-09-30",status:"announced",weights:"closed",price:"—",ctx:"—",mark:"3.5P",blurb:"Google's delayed Pro-tier model has missed three release targets. Bloomberg reports it remains in testing. Would be Google's first main-list Pro model since 3.1.",why:"No public result. The 3.8 Flash model card does not reference it."},
- {id:"gemini-4",name:"Gemini 4",lab:"google",date:"2026-12-31",status:"announced",weights:"closed",price:"—",ctx:"—",mark:"G4",blurb:"Reported to be in training. Nothing beyond the name is public.",why:"In training. No evidence of any kind."},
+ {id:"grok-4-7",name:"Grok 4.7",lab:"xai",date:"2026-09-11",status:"announced",weights:"closed",price:"—",ctx:"—",mark:"G4.7",blurb:"Musk said on 1 September it would ship in ten days, then on the 11th that it needed a few more days. Reported at 2.1T parameters, trained further on SpaceX data, and graded by Musk as roughly on par with Opus 5.0. No model card, API ID, price or independent number yet.",why:"Missed its 11 September target. Placed the day a benchmark result exists.",when:"was due 11 Sep 2026"},
+ {id:"gemini-3-5-pro",name:"Gemini 3.5 Pro",lab:"google",date:"2026-06-01",status:"announced",weights:"closed",price:"—",ctx:"—",mark:"3.5P",blurb:"Announced at I/O in May, promised for June, and still unreleased after missing June, mid-July and early-August targets. No model ID, no pricing and no launch date. Would be Google's first main-list Pro model since 3.1.",why:"No public result. The newest Pro-tier entry in the Gemini API is still 3.1 Pro Preview.",when:"promised Jun 2026"},
+ {id:"gemini-4",name:"Gemini 4",lab:"google",date:"2026-12-31",status:"announced",weights:"closed",price:"—",ctx:"—",mark:"G4",blurb:"Reported to be in training. Nothing beyond the name is public.",why:"In training. No evidence of any kind.",when:"no date"},
 ];
 
 const CHANGELOG = [
- ["2026-09-05","Unreleased and restricted models admitted. Claude Mythos 5.1 placed at #1, Anthropic Model 2 at #4 on internal evidence. Index rebased to Artificial Analysis v4.2. Epoch ECI and list-record tags added. Watchlist added."],
+ ["2026-09-19","Site: benchmark scores are no longer called records, and the submission queue is gone. Added the Benchmarks tab, movement since last issue, per-benchmark standing on model pages, and shareable links. Grok 4.7 watchlist entry updated after its missed date."],
+ ["2026-09-05","Unreleased and restricted models admitted. Claude Mythos 5.1 placed at #1, Anthropic Model 2 at #4 on internal evidence. Index rebased to Artificial Analysis v4.2. Epoch ECI added. Watchlist added."],
  ["2026-09-03","GPT-6 Astra placed at #3 pending independent ARC-AGI-3 runs. Muse Spark 1.3 at #4, Gemini 3.8 Flash at #10."],
  ["2026-09-01","Claude Fable 5.1 placed at #1. Fable 5 moves to #5."],
  ["2026-08-26","GLM-5.3-Flash placed at #14. Qwen3.8-Flash added to extended."],
@@ -577,6 +580,25 @@ const CHANGELOG = [
  ["2026-08-12","Grok 4.6 placed at #5. Qwen3.8-Max weights published; open badge added."],
  ["2026-07-24","Claude Opus 5 placed at #1 above Fable 5."],
  ["2026-07-16","Kimi K3 placed at #6, highest open-weight placement to date."],
+];
+
+// Benchmarks tab: columns, short labels, and one-line descriptions.
+const BENCH_COLS=[
+ ["Artificial Analysis Index v4.2","AA v4.2","Artificial Analysis Intelligence Index. Composite of ten evaluations across reasoning, coding, math and knowledge. Rescaled to v4.2 on 4 September 2026; older entries on the list are marked v4.1."],
+ ["Epoch ECI","Epoch ECI","Epoch AI Capabilities Index. A single capability number fitted across many benchmarks. Astra's 169 is the highest Epoch has measured."],
+ ["SWE-bench Verified","SWE-V","Human-validated subset of real GitHub issues. Near saturation at the top of the list."],
+ ["SWE-bench Pro","SWE-Pro","Harder, contamination-resistant successor to Verified, with longer multi-file tasks."],
+ ["Terminal-Bench 2.1","TB 2.1","Agentic tasks in a live terminal. The 2.1 harness is the one most independent runs use."],
+ ["Terminal-Bench 4.0","TB 4.0","Newest Terminal-Bench. Much harder; most models score under 60."],
+ ["DeepSWE v1.1","DeepSWE","113 hand-verified long-horizon engineering tasks across five languages, built so reference solutions never merge upstream."],
+ ["ARC-AGI-2","ARC-2","Abstract reasoning puzzles designed to resist memorisation. Near saturation for the top three."],
+ ["ARC-AGI-3 (standard harness)","ARC-3","Interactive successor to ARC-AGI-2. The standard stateless harness; vendor adapter-harness numbers are listed separately on model pages."],
+ ["GPQA Diamond","GPQA","Graduate-level science questions written to be Google-proof."],
+ ["Humanity's Last Exam (tools)","HLE","Expert-written questions across every academic field, run with tool use."],
+ ["FrontierMath Tier 4 v2","FM T4","Research-level mathematics. Tier 4 is the hardest tier; Astra's 97.6 saturates it."],
+ ["Arena text","Arena","LMArena blind-preference Elo on text. Fable 5 still holds the top with 27,000 votes."],
+ ["Arena WebDev","WebDev","LMArena blind-preference Elo for front-end builds."],
+ ["GDPval-AA v2","GDPval","Artificial Analysis Elo on economically valuable knowledge-work tasks."],
 ];
 
 const MAIN_END=15, EXT_END=30;
@@ -589,15 +611,30 @@ function tierOf(p){return p<=MAIN_END?"main":p<=EXT_END?"ext":"legacy"}
 function tierName(t){return t==="main"?"Main list":t==="ext"?"Extended list":t==="legacy"?"Legacy list":"Watchlist"}
 function fmtPts(n){return n.toFixed(1)}
 function fmtDate(s){const d=new Date(s+"T00:00:00");return d.toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"})}
-MODELS.forEach((m,i)=>{m.pos=i+1;m.pts=pointsFor(m.pos);m.tier=tierOf(m.pos)});
-WATCH.forEach(m=>{m.pos=null;m.pts=0;m.tier="watch";m.records=[];m.history=[];m.watch=true});
+function ordinal(n){const s=["th","st","nd","rd"],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0])}
+MODELS.forEach((m,i)=>{m.pos=i+1;m.pts=pointsFor(m.pos);m.tier=tierOf(m.pos);const pi=PREV_ISSUE.indexOf(m.id);m.was=pi<0?null:pi+1;m.delta=m.was==null?null:m.was-m.pos});
+WATCH.forEach(m=>{m.pos=null;m.pts=0;m.tier="watch";m.scores=[];m.history=[];m.watch=true;m.delta=null;m.was=null});
 const ALL=MODELS.concat(WATCH);
 const byId=id=>ALL.find(m=>m.id===id);
 
+// Per-benchmark standings across the ranked list.
+function numOf(s){s=String(s).trim();if(/^[$#]/.test(s))return null;const m=s.replace(/^[~≈]/,"").match(/-?\d+(\.\d+)?/);return m?parseFloat(m[0]):null}
+const BENCH={};
+MODELS.forEach(m=>m.scores.forEach(r=>{const v=numOf(r[1]);if(v==null)return;(BENCH[r[0]]=BENCH[r[0]]||[]).push({id:m.id,val:v,h:r[2]})}));
+function standing(name,id){
+  const g=BENCH[name];if(!g||g.length<2)return null;
+  const me=g.find(x=>x.id===id);if(!me)return null;
+  const above=g.filter(x=>x.val>me.val).length;
+  return {rank:above+1,of:g.length,max:Math.max(...g.map(x=>x.val)),best:above===0};
+}
+function scoreOf(m,name){return m.scores.find(r=>r[0]===name)}
+function scoreStarting(m,prefix){return m.scores.find(r=>r[0].startsWith(prefix))}
+
 /* ===================== STATE ===================== */
 const $=s=>document.querySelector(s);
-let selected=MODELS[0].id, filter="all", query="";
-let selectedLab=null;
+let selected=MODELS[0].id, filter="all", query="", page="list";
+let selectedLab=null, mxScope="main";
+const HOSTED=!(window.claude&&typeof window.claude.use==="function");
 
 /* ===================== TILE ART ===================== */
 function drawTile(canvas,model){
@@ -637,13 +674,21 @@ function matches(m){
   if(q&&!(m.name.toLowerCase().includes(q)||LABS[m.lab].name.toLowerCase().includes(q)))return false;
   return true;
 }
+function moveHtml(m){
+  if(m.watch)return "";
+  if(m.delta==null)return '<span class="mv new">new</span>';
+  if(m.delta>0)return `<span class="mv up" title="Up ${m.delta} since last issue">▲${m.delta}</span>`;
+  if(m.delta<0)return `<span class="mv down" title="Down ${-m.delta} since last issue">▼${-m.delta}</span>`;
+  return '<span class="mv same" title="Unchanged since last issue">—</span>';
+}
 function rowHtml(m){
   const lab=LABS[m.lab];
   const st=m.status!=="ga"?` · <span class="st ${m.status}">${STATUS[m.status]}</span>`:"";
+  const when=m.watch?m.when:fmtDate(m.date);
   return `<button class="row ${m.id===selected?"sel":""}" data-id="${m.id}" aria-pressed="${m.id===selected}">
-      <div class="rank num">${m.pos?"#"+m.pos:"—"}</div>
+      <div class="rankcell"><div class="rank num">${m.pos?"#"+m.pos:"—"}</div>${moveHtml(m)}</div>
       <div class="tile"><canvas data-tile="${m.id}"></canvas><div class="mark">${m.mark}</div>${m.status!=="ga"?LOCK:""}</div>
-      <div><div class="name">${m.name}</div><div class="by">by <span>${lab.name}</span> · ${m.watch?"due ":""}${fmtDate(m.date)}${st}</div></div>
+      <div><div class="name">${m.name}</div><div class="by">by <span>${lab.name}</span> · ${when}${st}</div></div>
       <div class="pts"><b class="num">${m.pts?fmtPts(m.pts):"—"}</b>${m.pts?"pts":m.watch?"unranked":"legacy"}</div>
     </button>`;
 }
@@ -667,10 +712,12 @@ function renderRail(){
   body.querySelectorAll(".row").forEach(b=>b.addEventListener("click",()=>selectModel(b.dataset.id)));
 }
 function selectModel(id,scroll){
+  if(!byId(id))return;
   selected=id;
   document.querySelectorAll(".row").forEach(r=>{const on=r.dataset.id===id;r.classList.toggle("sel",on);r.setAttribute("aria-pressed",on)});
   renderDetail();
   $("#detail").scrollTop=0;
+  setHash("model/"+id);
   if(scroll){const r=document.querySelector(`.row[data-id="${id}"]`);if(r)r.scrollIntoView({block:"nearest"})}
   if(window.innerWidth<=860&&scroll!==false){$("#detail").scrollIntoView({behavior:"smooth",block:"start"})}
 }
@@ -679,40 +726,48 @@ function renderDetail(){
   const m=byId(selected);
   const lab=LABS[m.lab];
   const prev=m.pos?MODELS[m.pos-2]:null,next=m.pos?MODELS[m.pos]:null;
-  const isNew=!m.watch&&(Date.now()-new Date(m.date))/864e5<10;
-  const specs=[[m.watch?"Expected":"Released",fmtDate(m.date)],["Status",STATUS[m.status]],["Weights",m.weights==="open"?"Open":"Closed"],["Price in / out",m.price+(m.price.startsWith("$")?" per M":"")],["Context",m.ctx],["Lab",lab.name+" · "+lab.country],["Tier",tierName(m.tier)]];
-  const nRec=m.records.filter(r=>r[5]).length;
-  const recs=m.records.length?`<div class="scroll"><table class="table">
-      <thead><tr><th>Benchmark</th><th>Score</th><th>Source</th></tr></thead>
-      <tbody>${m.records.map(r=>`<tr><td>${r[0]}${harnessTag(r[2])}${r[5]?'<span class="tag rec">list record</span>':""}</td><td class="score">${r[1]}${r[4]!=null?`<div class="bar"><i style="width:${Math.max(2,Math.min(100,r[4]))}%"></i></div>`:""}</td><td class="src">${r[3]}</td></tr>`).join("")}</tbody>
-    </table></div>`:`<div class="empty" style="padding:14px;border:1px dashed var(--line);border-radius:8px">${m.watch?"Nothing to show until a benchmark result exists.":"No verified records yet. Be the first to submit one."}</div>`;
+  const specs=[[m.watch?"Expected":"Released",m.watch?m.when:fmtDate(m.date)],["Status",STATUS[m.status]],["Weights",m.weights==="open"?"Open":"Closed"],["Price in / out",m.price+(m.price.startsWith("$")?" per M":"")],["Context",m.ctx],["Lab",lab.name+" · "+lab.country],["Tier",tierName(m.tier)],["Last issue",m.watch?"—":m.was?"#"+m.was:"not listed"]];
+  const aa=scoreStarting(m,"Artificial Analysis Index"), eci=scoreOf(m,"Epoch ECI");
+  const aaVer=aa&&aa[0].endsWith("v4.1")?"v4.1":"v4.2";
+  const bench=m.scores.length?`<div class="scroll"><table class="table">
+      <thead><tr><th>Benchmark</th><th>Score</th><th>On the list</th><th>Source</th></tr></thead>
+      <tbody>${m.scores.map(r=>{
+        const s=standing(r[0],m.id);
+        const v=numOf(r[1]);
+        let bar=null;
+        if(s&&v!=null)bar=v/s.max*100;else if(r[4]!=null)bar=r[4];
+        return `<tr><td>${r[0]}${harnessTag(r[2])}</td><td class="score">${r[1]}${bar!=null?`<div class="bar"><i style="width:${Math.max(2,Math.min(100,bar))}%"></i></div>`:""}</td><td class="standing ${s&&s.best?"best":""}">${s?(s.best?"best of "+s.of:ordinal(s.rank)+" of "+s.of):"only entry"}</td><td class="src">${r[3]}</td></tr>`}).join("")}</tbody>
+    </table></div>`:`<div class="empty" style="padding:14px;border:1px dashed var(--line);border-radius:8px">${m.watch?"Nothing to show until a benchmark result exists.":"No benchmark scores on file for this model."}</div>`;
   const warn=m.status==="internal"?`<div class="callout"><b>Internal evidence only.</b> This placement rests on the lab's own capabilities index. Treat the position as an estimate with the widest error bar on the list.</div>`
            :m.status==="restricted"?`<div class="callout"><b>Restricted access.</b> Served only to approved organizations. Ranked on published results; not something most readers can call.</div>`
            :m.watch?`<div class="callout"><b>Unranked.</b> ${m.why}</div>`:"";
+  const mvClass=m.delta==null?"":m.delta>0?"up":m.delta<0?"down":"dim";
+  const mvText=m.watch?"—":m.delta==null?"New entry":m.delta>0?"▲ "+m.delta:m.delta<0?"▼ "+(-m.delta):"Held";
   $("#detail").innerHTML=`
     <div class="hero">
-      <div class="kicker"><span class="pos">${m.pos?"Position #"+m.pos:"Watchlist"}</span><span>${tierName(m.tier)}</span><span>${lab.country} lab</span></div>
+      <div class="kicker"><span class="pos">${m.pos?"Position #"+m.pos:"Watchlist"}</span><span>${tierName(m.tier)}</span><span>${lab.country} lab</span>
+        <span class="tools">${HOSTED?'<button class="iconbtn" id="copyLink">Copy link</button>':""}</span></div>
       <h1>${m.name}</h1>
-      <div class="sub">by <b>${lab.name}</b> · ${m.watch?"expected":"released"} ${fmtDate(m.date)}</div>
+      <div class="sub">by <b>${lab.name}</b> · ${m.watch?m.when:"released "+fmtDate(m.date)}</div>
       <div class="badges">
         <span class="badge tier-${m.tier}">${tierName(m.tier)}</span>
         <span class="badge st-${m.status}">${STATUS[m.status]}</span>
         <span class="badge ${m.weights}">${m.weights==="open"?"Open weights":"Closed weights"}</span>
-        ${isNew?'<span class="badge hot">New this week</span>':""}
+        ${!m.watch&&m.delta==null?'<span class="badge hot">New this issue</span>':""}
       </div>
     </div>
     <div class="stats">
       <div class="stat pts"><div class="lbl">List points</div><div class="val num">${m.pts?fmtPts(m.pts):"0"}</div></div>
+      <div class="stat"><div class="lbl">Since last issue</div><div class="val num ${mvClass}">${mvText}</div></div>
+      <div class="stat"><div class="lbl">AA Index ${aa?aaVer:"v4.2"}</div><div class="val num ${aa?"":"dim"}">${aa?numOf(aa[1]):"—"}</div></div>
+      <div class="stat"><div class="lbl">Epoch ECI</div><div class="val num ${eci?"":"dim"}">${eci?eci[1]:"—"}</div></div>
       <div class="stat"><div class="lbl">Price in / out</div><div class="val num">${m.price}<small>${m.price.startsWith("$")?" / M tok":""}</small></div></div>
-      <div class="stat"><div class="lbl">Context</div><div class="val num">${m.ctx}</div></div>
-      <div class="stat"><div class="lbl">Records</div><div class="val num">${m.records.length}</div></div>
-      <div class="stat"><div class="lbl">List records held</div><div class="val num">${nRec}</div></div>
     </div>
     <div class="body">
       <div class="colA">
         <p class="blurb">${m.blurb}</p>
         ${warn}
-        <div><div class="h"><span>Records</span><span class="r">${m.records.filter(r=>r[2]==="indep").length} independent · ${m.records.filter(r=>r[2]==="vendor").length} vendor</span></div>${recs}</div>
+        <div><div class="h"><span>Benchmarks</span><span class="r">${m.scores.filter(r=>r[2]==="indep").length} independent · ${m.scores.filter(r=>r[2]==="vendor").length} vendor</span></div>${bench}</div>
       </div>
       <div class="colB">
         <div><div class="h"><span>Specs</span></div><dl class="specs">${specs.map(s=>`<div><dt>${s[0]}</dt><dd>${s[1]}</dd></div>`).join("")}</dl></div>
@@ -725,7 +780,15 @@ function renderDetail(){
     </div>`:""}`;
   if(prev)$("#prevBtn").addEventListener("click",()=>selectModel(prev.id,true));
   if(next)$("#nextBtn").addEventListener("click",()=>selectModel(next.id,true));
+  const cp=$("#copyLink");if(cp)cp.addEventListener("click",copyLink);
 }
+async function copyLink(){
+  const url=location.href.split("#")[0]+"#model/"+selected;
+  try{await navigator.clipboard.writeText(url);toast("Link copied")}
+  catch(e){toast("Copy the address bar link")}
+}
+let toastT=null;
+function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("show"),1800)}
 
 /* ===================== LEADERBOARD ===================== */
 function labTable(){
@@ -733,22 +796,22 @@ function labTable(){
     const ms=MODELS.filter(m=>m.lab===k);
     const pts=ms.reduce((a,m)=>a+m.pts,0);
     const best=ms.reduce((a,m)=>m.pos<a.pos?m:a,ms[0]);
-    const recs=ms.reduce((a,m)=>a+m.records.filter(r=>r[5]).length,0);
-    return {key:k,name:LABS[k].name,country:LABS[k].country,pts,models:ms,best,recs,main:ms.filter(m=>m.tier==="main").length,ext:ms.filter(m=>m.tier==="ext").length,open:ms.filter(m=>m.weights==="open").length,watch:WATCH.filter(m=>m.lab===k)};
+    const led=ms.reduce((a,m)=>a+m.scores.filter(r=>{const s=standing(r[0],m.id);return s&&s.best}).length,0);
+    return {key:k,name:LABS[k].name,country:LABS[k].country,pts,models:ms,best,led,main:ms.filter(m=>m.tier==="main").length,ext:ms.filter(m=>m.tier==="ext").length,open:ms.filter(m=>m.weights==="open").length,watch:WATCH.filter(m=>m.lab===k)};
   }).sort((a,b)=>b.pts-a.pts);
   rows.forEach((r,i)=>r.rank=i+1);
   return rows;
 }
 function renderBoard(){
   const rows=labTable();
-  if(!selectedLab)selectedLab=rows[0].key;
+  if(!selectedLab||!LABS[selectedLab])selectedLab=rows[0].key;
   $("#labCount").textContent=`${rows.length} labs · ${MODELS.length} ranked models`;
   $("#labRows").innerHTML=rows.map(r=>`<button class="lrow ${r.key===selectedLab?"sel":""}" data-lab="${r.key}">
       <div class="rk num">#${r.rank}</div>
-      <div><div class="nm">${r.name}</div><div class="meta">${r.country} · best #${r.best.pos} ${r.best.name} · ${r.main} main / ${r.ext} extended · ${r.recs} list records</div></div>
+      <div><div class="nm">${r.name}</div><div class="meta">${r.country} · best #${r.best.pos} ${r.best.name} · ${r.main} main / ${r.ext} extended · leads ${r.led} benchmark${r.led===1?"":"s"}</div></div>
       <div class="p num">${fmtPts(r.pts)}<small>points</small></div>
     </button>`).join("");
-  $("#labRows").querySelectorAll(".lrow").forEach(b=>b.addEventListener("click",()=>{selectedLab=b.dataset.lab;renderBoard()}));
+  $("#labRows").querySelectorAll(".lrow").forEach(b=>b.addEventListener("click",()=>{selectedLab=b.dataset.lab;setHash("labs/"+selectedLab);renderBoard()}));
   const r=rows.find(x=>x.key===selectedLab);
   const max=Math.max(...r.models.map(m=>m.pts),1);
   const all=r.models.concat(r.watch);
@@ -758,15 +821,32 @@ function renderBoard(){
       <div class="stat pts"><div class="lbl">Total points</div><div class="val num">${fmtPts(r.pts)}</div></div>
       <div class="stat"><div class="lbl">Best placement</div><div class="val num">#${r.best.pos}</div></div>
       <div class="stat"><div class="lbl">Main list</div><div class="val num">${r.main}</div></div>
-      <div class="stat"><div class="lbl">List records</div><div class="val num">${r.recs}</div></div>
+      <div class="stat"><div class="lbl">Benchmarks led</div><div class="val num">${r.led}</div></div>
     </div>
     <div class="bars">${all.map(m=>`<div class="brow">
         <div class="rk num">${m.pos?"#"+m.pos:"—"}</div>
-        <div><div class="nm"><span><button class="link" data-goto="${m.id}">${m.name}</button>${m.status!=="ga"?` <span class="tag">${STATUS[m.status]}</span>`:""}</span><span>${tierName(m.tier)} · ${fmtDate(m.date)}</span></div><div class="track"><i class="${m.tier}" style="width:${Math.max(1.5,m.pts/max*100)}%"></i></div></div>
+        <div><div class="nm"><span><button class="link" data-goto="${m.id}">${m.name}</button>${m.status!=="ga"?` <span class="tag">${STATUS[m.status]}</span>`:""}</span><span>${tierName(m.tier)} · ${m.watch?m.when:fmtDate(m.date)}</span></div><div class="track"><i class="${m.tier}" style="width:${Math.max(1.5,m.pts/max*100)}%"></i></div></div>
         <div class="p num">${m.pts?fmtPts(m.pts):"0"}</div>
       </div>`).join("")}</div>`;
   $("#labDetail").querySelectorAll("[data-goto]").forEach(b=>b.addEventListener("click",()=>{showPage("list");selectModel(b.dataset.goto,true)}));
 }
+
+/* ===================== BENCHMARKS ===================== */
+function renderMatrix(){
+  const cols=BENCH_COLS;
+  const rows=MODELS.filter(m=>(mxScope==="main"?m.tier==="main":true)&&cols.some(c=>scoreOf(m,c[0])));
+  const best={};cols.forEach(c=>{const g=BENCH[c[0]];best[c[0]]=g?Math.max(...g.map(x=>x.val)):null});
+  $("#matrix").innerHTML=`<table>
+    <thead><tr><th>Model</th>${cols.map(c=>`<th title="${c[0]}">${c[1]}</th>`).join("")}</tr></thead>
+    <tbody>${rows.map(m=>`<tr><td><span class="rk">#${m.pos}</span><button class="link" data-goto="${m.id}">${m.name}</button>${m.status!=="ga"?`<span class="stt">${m.status}</span>`:""}</td>${cols.map(c=>{
+        const r=scoreOf(m,c[0]);if(!r)return '<td class="none">—</td>';
+        const v=numOf(r[1]);const isBest=v!=null&&best[c[0]]!=null&&v>=best[c[0]]&&(BENCH[c[0]]||[]).length>1;
+        return `<td class="c ${isBest?"best":""}" title="${r[3]}">${r[1]}<i class="dot ${r[2]}"></i></td>`}).join("")}</tr>`).join("")}</tbody>
+  </table>`;
+  $("#matrix").querySelectorAll("[data-goto]").forEach(b=>b.addEventListener("click",()=>{showPage("list");selectModel(b.dataset.goto,true)}));
+  $("#gloss").innerHTML=cols.map(c=>{const g=BENCH[c[0]]||[];return `<li><b>${c[0]}</b><span>${c[2]}</span>${g.length?`<div class="n">${g.length} model${g.length===1?"":"s"} on the list</div>`:""}</li>`}).join("");
+}
+$("#mxSeg").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{mxScope=b.dataset.scope;$("#mxSeg").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));renderMatrix()}));
 
 /* ===================== GUIDELINES ===================== */
 function renderRules(){
@@ -775,82 +855,34 @@ function renderRules(){
   $("#changelog").innerHTML=CHANGELOG.map(c=>`<li><code>${c[0]}</code><span>${c[1]}</span></li>`).join("");
 }
 
-/* ===================== SUBMIT (db) ===================== */
-let db=null, dbReady=false;
-const BENCHES=["SWE-bench Pro","SWE-bench Verified","Terminal-Bench 2.1","Terminal-Bench 4.0","DeepSWE v1.1","GPQA Diamond","Humanity's Last Exam","ARC-AGI-2","ARC-AGI-3 (standard harness)","FrontierMath Tier 4","AIME 2026","Arena text","Arena WebDev","GDPval-AA v2","Artificial Analysis Index v4.2","Epoch ECI","BrowseComp","LiveBench Reasoning","EQ-Bench Creative Writing"];
-function initSubmitForm(){
-  $("#fModel").innerHTML=ALL.map(m=>`<option value="${m.id}">${m.pos?"#"+m.pos:"Watch"} ${m.name}</option>`).join("");
-  $("#benchList").innerHTML=BENCHES.map(b=>`<option value="${b}">`).join("");
-  $("#fModel").value=selected;
-}
-function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
-function renderQueue(docs){
-  const q=$("#queue");
-  if(!docs.length){q.innerHTML='<div class="empty">The queue is empty. Records you submit appear here for review.</div>';$("#queueCount").textContent="0 pending";return}
-  $("#queueCount").textContent=`${docs.length} pending`;
-  q.innerHTML=docs.map(d=>{
-    const m=byId(d.model);
-    let host="";try{host=new URL(d.source).host}catch(e){host=""}
-    return `<div class="qrow">
-      <div><div class="t">${esc(m?m.name:d.model)} <span style="color:var(--muted);font-weight:400">· ${esc(d.bench)}</span></div>
-        <div class="m">${esc(d.harness)} run${d.submitter?` · submitted by ${esc(d.submitter)}`:""}${d.at?` · ${fmtDate(String(d.at).slice(0,10))}`:""}${host?` · <a href="${esc(d.source)}" target="_blank" rel="noopener noreferrer">${esc(host)}</a>`:""}</div></div>
-      <div><div class="s">${esc(d.score)}</div><div class="st pending">${esc(d.status||"pending")}</div></div>
-      ${d.note?`<div class="note">${esc(d.note)}</div>`:""}
-    </div>`}).join("");
-}
-function dbOffline(){
-  $("#dbNotice").textContent="Shared submissions are not available in this view. The list, leaderboard and guidelines work as normal.";
-  $("#fSubmitBtn").disabled=true;
-  $("#queue").innerHTML='<div class="empty">The shared queue is unavailable here.</div>';
-  $("#queueCount").textContent="offline";
-}
-async function initDb(){
-  try{db=await window.claude.use("db")}catch(e){db=null}
-  if(!db){dbOffline();return}
-  dbReady=true;
-  const notice=$("#dbNotice");
-  notice.textContent="Submissions go to a shared queue everyone with this page can see. Include a public source link.";
-  notice.classList.add("ok");
-  db.collection("submissions").orderBy("at","desc").limit(100).onSnapshot(snap=>{
-    renderQueue(snap.docs.map(d=>d.data()));
-  },err=>{
-    $("#queue").innerHTML=`<div class="empty">Couldn't load the queue (${esc(err.code)}). Reload to try again.</div>`;
-  });
-}
-async function submitRecord(ev){
-  ev.preventDefault();
-  if(!dbReady)return;
-  const status=$("#fStatus"),btn=$("#fSubmitBtn");
-  const rec={
-    model:$("#fModel").value,bench:$("#fBench").value.trim(),score:$("#fScore").value.trim(),
-    harness:$("#fHarness").value,submitter:$("#fSubmitter").value.trim(),source:$("#fSource").value.trim(),
-    note:$("#fNote").value.trim(),status:"pending",at:new Date().toISOString()
-  };
-  try{new URL(rec.source)}catch(e){status.textContent="Source must be a full URL starting with https://";status.style.color="var(--danger)";return}
-  btn.disabled=true;status.style.color="var(--muted)";status.textContent="Submitting…";
-  try{
-    await db.collection("submissions").add(rec);
-    status.textContent="Submitted. It's in the pending queue.";status.style.color="var(--ok)";
-    $("#fBench").value="";$("#fScore").value="";$("#fSource").value="";$("#fNote").value="";
-  }catch(e){
-    const msg=e&&e.code==="quota_exceeded"?"The queue is full. Ask the list owner to clear reviewed records.":e&&e.code==="resource_exhausted"?"Too many submissions right now. Wait a moment and try again.":"Couldn't submit. Check the fields and try again.";
-    status.textContent=msg;status.style.color="var(--danger)";
-  }finally{btn.disabled=false}
-}
-
-/* ===================== NAV / THEME ===================== */
-function showPage(p){
+/* ===================== NAV / ROUTING / THEME ===================== */
+let routing=false;
+function setHash(h){if(routing)return;try{history.replaceState(null,"","#"+h)}catch(e){}}
+function showPage(p,fromRoute){
+  page=p;
   document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.dataset.page===p));
   document.querySelectorAll(".page").forEach(s=>s.classList.toggle("on",s.id==="page-"+p));
   if(p==="board")renderBoard();
-  if(p==="submit")$("#fModel").value=selected;
+  if(p==="bench")renderMatrix();
+  if(!fromRoute){setHash(p==="list"?"model/"+selected:p==="board"?"labs/"+(selectedLab||""):p==="bench"?"benchmarks":"guidelines")}
   window.scrollTo({top:0});
+}
+function route(){
+  routing=true;
+  const h=location.hash.replace(/^#\/?/,"");
+  const [a,b]=h.split("/");
+  if(a==="model"&&byId(b)){showPage("list",true);selectModel(b,true)}
+  else if(a==="labs"){if(b&&LABS[b])selectedLab=b;showPage("board",true)}
+  else if(a==="benchmarks"){showPage("bench",true)}
+  else if(a==="guidelines"){showPage("rules",true)}
+  else{showPage("list",true)}
+  routing=false;
 }
 document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>showPage(t.dataset.page)));
 $("#brandLink").addEventListener("click",e=>{e.preventDefault();showPage("list")});
+window.addEventListener("hashchange",route);
 $("#q").addEventListener("input",e=>{query=e.target.value;renderRail()});
 $("#chips").querySelectorAll(".chip").forEach(c=>c.addEventListener("click",()=>{filter=c.dataset.f;document.querySelectorAll(".chip").forEach(x=>x.classList.toggle("on",x===c));renderRail()}));
-$("#recForm").addEventListener("submit",submitRecord);
 $("#themeBtn").addEventListener("click",()=>{
   const root=document.documentElement;
   const cur=root.getAttribute("data-theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");
@@ -860,7 +892,10 @@ $("#themeBtn").addEventListener("click",()=>{
 });
 try{const t=localStorage.getItem("ml-theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}
 document.addEventListener("keydown",e=>{
-  if(!$("#page-list").classList.contains("on")||e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA"||e.target.tagName==="SELECT")return;
+  const typing=["INPUT","TEXTAREA","SELECT"].includes(e.target.tagName);
+  if(e.key==="/"&&!typing){e.preventDefault();showPage("list");$("#q").focus();return}
+  if(e.key==="Escape"&&e.target.id==="q"){e.target.value="";query="";renderRail();e.target.blur();return}
+  if(page!=="list"||typing)return;
   const i=MODELS.findIndex(m=>m.id===selected);
   if(i<0)return;
   if(e.key==="ArrowDown"&&i<MODELS.length-1){selectModel(MODELS[i+1].id,true);e.preventDefault()}
@@ -868,8 +903,8 @@ document.addEventListener("keydown",e=>{
 });
 
 /* ===================== BOOT ===================== */
-renderRail();renderDetail();renderRules();initSubmitForm();
-if(window.claude&&typeof window.claude.use==="function")initDb();else dbOffline();
+renderRail();renderDetail();renderRules();
+route();
 </script>
 
 </body>
